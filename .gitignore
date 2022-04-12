@@ -7,3 +7,4 @@ build
 # Please dont add this
 credentials.json
 tokens
+config.properties

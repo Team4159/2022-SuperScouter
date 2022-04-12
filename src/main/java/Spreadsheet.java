@@ -1,3 +1,4 @@
+package sheets;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -56,11 +57,12 @@ public class Spreadsheet {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
+    
     /**
      * Prints the names and majors of students in a sample spreadsheet:
      * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
      */
-    public static void main(String... args) throws IOException, GeneralSecurityException {
+    public static void runTest() throws IOException, GeneralSecurityException {
         // Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
