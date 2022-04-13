@@ -1,6 +1,3 @@
-import sheets.Spreadsheet;
-import statwheel.StatWheel;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +10,7 @@ public class App {
     public static void main(String[] args) {
         System.out.println("Hello World!");
         try {
-          StatWheel.test();
+          StatWheel.runTest();
         } catch (Exception e) {
           System.out.println("something broke in statwheel");
         }

@@ -8,3 +8,6 @@ build
 credentials.json
 tokens
 config.properties
+
+#test png files
+test*.png
