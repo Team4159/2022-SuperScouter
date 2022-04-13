@@ -24,20 +24,11 @@ public class Spreadsheet {
     private static final String APPLICATION_NAME = "Cardinalbotics Scouting App";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private final String spreadsheetId = PropReader.getProperty("spreadSheetId");
 
-    /**
-     * Global instance of the scopes required by this quickstart.
-     * If modifying these scopes, delete your previously saved tokens/ folder.
-     */
-    private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+    private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
 
-    /**
-     * Creates an authorized Credential object.
-     * @param HTTP_TRANSPORT The network HTTP Transport.
-     * @return An authorized Credential object.
-     * @throws IOException If the credentials.json file cannot be found.
-     */
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         // Load client secrets.
         InputStream in = Spreadsheet.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
@@ -56,19 +47,28 @@ public class Spreadsheet {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    
+    // Singleton for sheets service
+    private static Sheets service = null;
+    private static Sheets getSheetsService() throws GeneralSecurityException, IOException {
+        if (service == null) {
+            service = getSheetsService();
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+        }
+        return service;
+    }
+
     /**
      * Prints the names and majors of students in a sample spreadsheet:
      * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
      */
     public static void runTest() throws IOException, GeneralSecurityException {
         // Build a new authorized API client service.
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
         final String range = "Class Data!A2:E";
-        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
+        Sheets service = getSheetsService();
         ValueRange response = service.spreadsheets().values()
                 .get(spreadsheetId, range)
                 .execute();
@@ -83,4 +83,16 @@ public class Spreadsheet {
             }
         }
     }
+    /*
+    public static void insertData(String[] data, String range) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+        List<List<Object>> values = Collections.singletonList(data);
+        ValueRange body = new ValueRange().setValues(values);
+        service.spreadsheets().values().update(spreadsheetId, range, body).setValueInputOption("RAW").execute();
+    }
+    */
 }
