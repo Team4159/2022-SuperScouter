@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
@@ -19,12 +20,13 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Arrays;
 
 public class Spreadsheet {
     private static final String APPLICATION_NAME = "Cardinalbotics Scouting App";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private final String spreadsheetId = PropReader.getProperty("spreadSheetId");
+    private static final String spreadsheetId = PropReader.getProperty("spreadSheetId");
 
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
@@ -47,13 +49,11 @@ public class Spreadsheet {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    // Singleton for sheets service
     private static Sheets service = null;
     private static Sheets getSheetsService() throws GeneralSecurityException, IOException {
         if (service == null) {
-            service = getSheetsService();
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+            service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                     .setApplicationName(APPLICATION_NAME)
                     .build();
         }
@@ -83,16 +83,15 @@ public class Spreadsheet {
             }
         }
     }
-    /*
-    public static void insertData(String[] data, String range) throws IOException, GeneralSecurityException {
-        // Build a new authorized API client service.
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-        List<List<Object>> values = Collections.singletonList(data);
-        ValueRange body = new ValueRange().setValues(values);
-        service.spreadsheets().values().update(spreadsheetId, range, body).setValueInputOption("RAW").execute();
+
+    public static void insertData(List<List<Object>> values, String range) throws IOException, GeneralSecurityException {
+      Sheets service = getSheetsService();
+      ValueRange body = new ValueRange()
+              .setValues(values);
+      UpdateValuesResponse result =
+              service.spreadsheets().values().update(spreadsheetId, range, body)
+                      .setValueInputOption("RAW")
+                      .execute();
+      System.out.printf("%d cells updated.", result.getUpdatedCells());
     }
-    */
 }

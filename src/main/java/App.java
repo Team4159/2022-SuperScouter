@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Arrays;
 
 public class App {
     public static void main(String[] args) {
@@ -15,10 +16,18 @@ public class App {
           System.out.println("something broke in statwheel");
         }
         try {
-          Spreadsheet.runTest();
+          // Spreadsheet.runTest();
+          List<List<Object>> values = Arrays.asList(
+            Arrays.asList(
+              "Tim", "Joe"
+            ),
+            Arrays.asList(
+              "Linda", "Bob"
+            )
+          );
+          Spreadsheet.insertData(values, "Test!A1:B2" );
         } catch (Exception e) {
-          System.out.println("something broke");
+          System.out.println(e);
         }
-        // PropReader.printProps();
     }
 }
