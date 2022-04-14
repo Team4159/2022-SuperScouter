@@ -13,6 +13,7 @@ class BlueAllianceMatchServiceImpl(
 ): BlueAllianceMatchService {
     private val client:HttpClient = HttpClient.newBuilder().build()
     private val url:String = "https://www.thebluealliance.com/api/v3/event/$eventKey/matches/simple"
+    private lateinit var currentHeaders:String
 
     @Throws(HttpTimeoutException::class)
     override fun getMatches(): List<Any>{
@@ -25,7 +26,10 @@ class BlueAllianceMatchServiceImpl(
                 .GET()
                 .build()
         val response: CompletableFuture<Void>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply{ matches = listOf(it.body()) }
+                .thenApply{
+                    matches = listOf(it.body())
+                    currentHeaders = it.headers().toString()
+                }
                 .thenAccept(System.out::println)
         //Use Google Gson or Jackson later
         return matches
