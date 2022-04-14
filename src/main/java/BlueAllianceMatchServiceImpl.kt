@@ -4,6 +4,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.net.http.HttpTimeoutException
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import kotlin.jvm.Throws
 
 class BlueAllianceMatchServiceImpl(
@@ -23,10 +24,10 @@ class BlueAllianceMatchServiceImpl(
                 .timeout(Duration.ofSeconds(15L))
                 .GET()
                 .build()
-        val response:HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-        matches = listOf(response.body()) //Use gson or jackson later
+        val response: CompletableFuture<Void>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply{ matches = listOf(it.body()) }
+                .thenAccept(System.out::println)
+        //Use Google Gson or Jackson later
         return matches
     }
-
-
 }
