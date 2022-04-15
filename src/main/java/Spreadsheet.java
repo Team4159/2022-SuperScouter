@@ -11,7 +11,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.api.services.sheets.v4.model.ValueRange;
+import com.google.api.services.sheets.v4.model.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -94,4 +94,31 @@ public class Spreadsheet {
                       .execute();
       System.out.printf("%d cells updated.", result.getUpdatedCells());
     }
+
+    public static boolean checkIfExists(String sheetName) throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        String range = sheetName + "!A1:A1";
+        try {
+            ValueRange response = service.spreadsheets().values()
+                .get(spreadsheetId, range)
+                .execute();
+            List<List<Object>> values = response.getValues();
+        } catch (Exception e) {
+          return false;
+        }
+        return true;
+    }
+
+    /*
+    public static void createSheet(String sheetName) throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        Spreadsheet sheet = new Spreadsheet();
+        SpreadsheetProperties properties = new SpreadsheetProperties();
+        properties.setTitle("new SpreadSheetTitle");
+        sheet.setProperties(properties);
+
+        Spreadsheet response = service.spreadsheets().create(sheet)
+            .execute();
+    }
+    */
 }

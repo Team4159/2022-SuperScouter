@@ -29,6 +29,7 @@ public class App {
             )
           );
           Spreadsheet.insertData(values, "Test!A1:B2" );
+          System.out.println(Spreadsheet.checkIfExists("idk"));
         } catch (Exception e) {
           System.out.println(e);
         }
