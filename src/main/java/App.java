@@ -9,9 +9,16 @@ import java.util.List;
 import java.util.Arrays;
 
 public class App {
-    public static void main(String[] args) throws HttpTimeoutException {
-        BlueAllianceMatchServiceImpl b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
-        b.getMatches();
+    public static void main(String[] args){
+        var b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        try {
+            System.out.println(b.getMatches());
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+
         System.out.println("Hello World!");
         try {
           StatWheel.runTest();
