@@ -21,6 +21,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class Spreadsheet {
     private static final String APPLICATION_NAME = "Cardinalbotics Scouting App";
@@ -42,9 +43,9 @@ public class Spreadsheet {
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
-                .setAccessType("offline")
-                .build();
+            .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+            .setAccessType("offline")
+            .build();
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
@@ -54,8 +55,8 @@ public class Spreadsheet {
         if (service == null) {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
+                .setApplicationName(APPLICATION_NAME)
+                .build();
         }
         return service;
     }
@@ -70,8 +71,8 @@ public class Spreadsheet {
         final String range = "Class Data!A2:E";
         Sheets service = getSheetsService();
         ValueRange response = service.spreadsheets().values()
-                .get(spreadsheetId, range)
-                .execute();
+            .get(spreadsheetId, range)
+            .execute();
         List<List<Object>> values = response.getValues();
         if (values == null || values.isEmpty()) {
             System.out.println("No data found.");
@@ -85,14 +86,14 @@ public class Spreadsheet {
     }
 
     public static void insertData(List<List<Object>> values, String range) throws IOException, GeneralSecurityException {
-      Sheets service = getSheetsService();
-      ValueRange body = new ValueRange()
-              .setValues(values);
-      UpdateValuesResponse result =
-              service.spreadsheets().values().update(spreadsheetId, range, body)
-                      .setValueInputOption("RAW")
-                      .execute();
-      System.out.printf("%d cells updated.", result.getUpdatedCells());
+        Sheets service = getSheetsService();
+        ValueRange body = new ValueRange()
+            .setValues(values);
+        UpdateValuesResponse result =
+            service.spreadsheets().values().update(spreadsheetId, range, body)
+            .setValueInputOption("RAW")
+            .execute();
+        System.out.printf("%d cells updated.", result.getUpdatedCells());
     }
 
     public static boolean checkIfExists(String sheetName) throws IOException, GeneralSecurityException {
@@ -102,23 +103,18 @@ public class Spreadsheet {
             ValueRange response = service.spreadsheets().values()
                 .get(spreadsheetId, range)
                 .execute();
-            List<List<Object>> values = response.getValues();
         } catch (Exception e) {
-          return false;
+            return false;
         }
         return true;
     }
 
-    /*
-    public static void createSheet(String sheetName) throws IOException, GeneralSecurityException {
+    public static void createTab(String title) throws IOException, GeneralSecurityException {
         Sheets service = getSheetsService();
-        Spreadsheet sheet = new Spreadsheet();
-        SpreadsheetProperties properties = new SpreadsheetProperties();
-        properties.setTitle("new SpreadSheetTitle");
-        sheet.setProperties(properties);
-
-        Spreadsheet response = service.spreadsheets().create(sheet)
-            .execute();
+        List<Request> requests = new ArrayList<>();
+        requests.add(new Request().setAddSheet(new AddSheetRequest().setProperties(new SheetProperties()
+                        .setTitle(title))));
+        BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+        service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
     }
-    */
 }
