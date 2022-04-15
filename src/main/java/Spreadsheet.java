@@ -12,6 +12,9 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.*;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -93,7 +96,7 @@ public class Spreadsheet {
             service.spreadsheets().values().update(spreadsheetId, range, body)
             .setValueInputOption("RAW")
             .execute();
-        System.out.printf("%d cells updated.", result.getUpdatedCells());
+        System.out.printf("%d cells updated.\n", result.getUpdatedCells());
     }
 
     public static boolean checkIfExists(String sheetName) throws IOException, GeneralSecurityException {
@@ -103,7 +106,13 @@ public class Spreadsheet {
             ValueRange response = service.spreadsheets().values()
                 .get(spreadsheetId, range)
                 .execute();
-        } catch (Exception e) {
+        } catch (IOException exception) {
+            if (exception instanceof GoogleJsonResponseException) {
+               GoogleJsonError details = ((GoogleJsonResponseException) exception).getDetails();
+                if (details.getCode() == 400) {
+                     System.out.println("Tab does not exist");
+                }
+            }
             return false;
         }
         return true;
@@ -115,6 +124,15 @@ public class Spreadsheet {
         requests.add(new Request().setAddSheet(new AddSheetRequest().setProperties(new SheetProperties()
                         .setTitle(title))));
         BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-        service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+        try {
+            service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+        } catch (IOException exception) {
+            if (exception instanceof GoogleJsonResponseException) {
+               GoogleJsonError details = ((GoogleJsonResponseException) exception).getDetails();
+                if (details.getCode() == 400) {
+                     System.out.println("Tab already exists");
+                }
+            }
+        }
     }
 }
