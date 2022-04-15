@@ -1,4 +1,5 @@
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -16,7 +17,7 @@ class BlueAllianceMatchServiceImpl(
     private val client:HttpClient = HttpClient.newBuilder().build()
     private val url:String = "https://www.thebluealliance.com/api/v3/event/$eventKey/matches"
     private lateinit var currentHeaders:String
-    private val gson:Gson = Gson()
+    private val gson:Gson = GsonBuilder().create()
     companion object {
         val EVENT_KEYS:Array<String> = arrayOf("2022casj", "2016nytr")
     }
@@ -31,15 +32,12 @@ class BlueAllianceMatchServiceImpl(
                 .GET()
                 .build()
         val response: CompletableFuture<Void>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply{
-                    matches = listOf(it.body())
-                    currentHeaders = it.headers().toString()
-                    println(it.body() + "bruh")
-                }
-                .thenAccept(System.out::println)
+                .thenApply(HttpResponse<String>::body)
+                .thenApply { println(it) }
+                .thenAccept { println("Completed") }
 
-        val r = client.send(request, HttpResponse.BodyHandlers.ofString())
-        println(r.body())
+        //val r = client.send(request, HttpResponse.BodyHandlers.ofString())
+        //println(r.body())
         //Use Google Gson or Jackson later
         return matches
     }

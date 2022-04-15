@@ -2,14 +2,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.http.HttpTimeoutException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
 
 public class App {
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws HttpTimeoutException {
+        BlueAllianceMatchServiceImpl b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        b.getMatches();
         System.out.println("Hello World!");
         try {
           StatWheel.runTest();
