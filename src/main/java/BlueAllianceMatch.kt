@@ -1,4 +1,5 @@
 //Might have to make the properties nullable
+//yeah yeah nested hashmap later
 data class BlueAllianceMatch(
         val compLevel:String,
         val winningAlliance:String,
