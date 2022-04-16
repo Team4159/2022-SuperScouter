@@ -1,42 +1,42 @@
 //Might have to make the properties nullable
 //yeah yeah nested hashmap later
 data class BlueAllianceMatch(
-        @JvmField val compLevel:String,
-        @JvmField val winningAlliance:String,
+        val compLevel:String,
+        val winningAlliance:String,
 
-        @JvmField val blueRobot1Climb:String,
-        @JvmField val blueRobot2Climb:String,
-        @JvmField val blueRobot3Climb:String,
+        val blueRobot1Climb:String,
+        val blueRobot2Climb:String,
+        val blueRobot3Climb:String,
 
-        @JvmField val redRobot1Climb:String,
-        @JvmField val redRobot2Climb:String,
-        @JvmField val redRobot3Climb:String,
+        val redRobot1Climb:String,
+        val redRobot2Climb:String,
+        val redRobot3Climb:String,
 
-        @JvmField val blueRobot1IsTaxi:String,
-        @JvmField val blueRobot2IsTaxi:String,
-        @JvmField val blueRobot3IsTaxi:String,
+        val blueRobot1IsTaxi:String,
+        val blueRobot2IsTaxi:String,
+        val blueRobot3IsTaxi:String,
 
-        @JvmField val redRobot1IsTaxi:String,
-        @JvmField val redRobot2IsTaxi:String,
-        @JvmField val redRobot3IsTaxi:String,
+        val redRobot1IsTaxi:String,
+        val redRobot2IsTaxi:String,
+        val redRobot3IsTaxi:String,
 
-        @JvmField val blueRP:Int,
-        @JvmField val redRP:Int,
-        @JvmField val blueQuintetAchieved:Boolean,
-        @JvmField val redQuintetAchieved:Boolean,
-        @JvmField val blueHangarBonusRP:Boolean,
-        @JvmField val redHangarBonusRP:Boolean,
-        @JvmField val blueCargoBonusRP:Boolean,
-        @JvmField val redCargoBonusRP:Boolean,
+        val blueRP:Int,
+        val redRP:Int,
+        val blueQuintetAchieved:Boolean,
+        val redQuintetAchieved:Boolean,
+        val blueHangarBonusRP:Boolean,
+        val redHangarBonusRP:Boolean,
+        val blueCargoBonusRP:Boolean,
+        val redCargoBonusRP:Boolean,
 
-        @JvmField val blueFoulCount:Int,
-        @JvmField val redFoulCount:Int,
-        @JvmField val blueTechFoulCount:Int,
-        @JvmField val redTechFoulCount:Int,
+        val blueFoulCount:Int,
+        val redFoulCount:Int,
+        val blueTechFoulCount:Int,
+        val redTechFoulCount:Int,
 
         //From Red and Blue alliances
-        @JvmField val redTotalPoints:Int,
-        @JvmField val blueTotalPoints:Int
+        val redTotalPoints:Int,
+        val blueTotalPoints:Int
 
         //Maybe add YT vid field
 

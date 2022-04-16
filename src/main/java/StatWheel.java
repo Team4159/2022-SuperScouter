@@ -118,7 +118,7 @@ public class StatWheel{
             System.out.println(matchFour);
             String statDataLabel[] = {"Points(/100)", "test", "test"};
             // System.out.println(Math.min(1.0, matchFour.redTotalPoints/100.0));
-            double statsData[] = {Math.min(1.0, matchFour.redTotalPoints/100.0), .5, .5};
+            double statsData[] = {Math.min(1.0, matchFour.getRedTotalPoints()/100.0), .5, .5};
             StatWheel statData = new StatWheel(statsData, statDataLabel);
             statData.saveToFile("./testFour.png");
         } catch (Exception e) {
