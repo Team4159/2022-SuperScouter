@@ -20,19 +20,22 @@ class BlueAllianceMatchServiceImpl(
     private val client:HttpClient = HttpClient.newBuilder().build()
     private val url:String = "https://www.thebluealliance.com/api/v3"
     private lateinit var currentHeaders:String
-    private val gson:Gson = GsonBuilder().create()
+    private val gson:Gson = GsonBuilder().setPrettyPrinting().create()
     companion object {
         //Event keys: https://docs.google.com/spreadsheets/d/1HqsReMjr5uBuyZjqv14t6bQF2n038GfMmWi3B6vFGiA/edit
-        val EVENT_KEYS:Array<String> = arrayOf("2022casj", "2016nytr")
+        val EVENT_KEYS:Map<String,String> = HashMap<String,String>().apply {
+            put("SVR", "2022casj")
+            put("SFR", "2022casf")
+        }
     }
 
     @Throws(HttpTimeoutException::class, InterruptedException::class, MalformedURLException::class)
     override fun getMatches(): List<BlueAllianceMatch>{
         //TODO("Not yet implemented")
         val matches:MutableList<BlueAllianceMatch> = mutableListOf()
-        //matches.clear()
+        matches.clear()
         val request:HttpRequest = createRequest("$url/event/$eventKey/matches")
-        val response: CompletableFuture<Void>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        val response: CompletableFuture<Any>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
             //Do nested hashmap later
             .thenApply(HttpResponse<String>::body)
             .thenApply { it ->
@@ -108,18 +111,18 @@ class BlueAllianceMatchServiceImpl(
                 }
                 return@thenApply matches
             }
-            .thenAccept({})
-        response?.get()
+        val result:List<BlueAllianceMatch> = response?.get() as List<BlueAllianceMatch>
         return matches
     }
 
+    //Can be used on non Rapid React games
     @Throws(HttpTimeoutException::class, InterruptedException::class, MalformedURLException::class)
-    fun getMatches2(): List<Map<String,Any>>{
+    fun getMatches2(): List<List<Map<String,Any>>>{
         //TODO("Not yet implemented")
         val matches:MutableList<Map<String,Any>> = mutableListOf()
-        //matches.clear()
+        matches.clear()
         val request:HttpRequest = createRequest("$url/event/$eventKey/matches")
-        val response: CompletableFuture<Void>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        val response: CompletableFuture<Any>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
             //Do nested hashmap later
             .thenApply(HttpResponse<String>::body)
             .thenApply { it ->
@@ -134,13 +137,29 @@ class BlueAllianceMatchServiceImpl(
                 }
                 return@thenApply matches
             }
-            .thenAccept({})
-        response?.get()
-        return matches
+        val result:List<List<Map<String,Any>>> = response?.get() as List<List<Map<String,Any>>>
+        return result
     }
 
-    override fun getMatchesByTeamNumber(teamNumber:Int): List<Any> {
-        TODO("Not yet implemented")
+    override fun getMatchesByTeamNumber(teamNumber:Int): List<Map<String,Any>> {
+        //TODO("Not yet implemented")
+        val matches:MutableList<Map<String,Any>> = mutableListOf()
+        matches.clear()
+        val request:HttpRequest = createRequest("$url/team/frc$teamNumber/event/$eventKey/matches")
+        val response:CompletableFuture<Any>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenApply(HttpResponse<String>::body)
+            .thenApply {
+                val matchesJSON:JsonArray = JsonParser.parseString(it) as JsonArray
+                matchesJSON.map {
+                    //From matchJSON object
+                    val match = gson.fromJson<HashMap<String,Any>>(it, object :TypeToken<HashMap<String,Any>>(){}.type)
+                    matches.add(match)
+                }
+                return@thenApply matches
+
+            }
+        val result:List<Map<String,Any>> = response?.get() as List<Map<String,Any>>
+        return result
     }
 
     override fun getMatchByQualificationNumber(qualNumber:Int, matchType:String): List<Any> {
