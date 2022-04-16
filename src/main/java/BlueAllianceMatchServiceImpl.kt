@@ -23,7 +23,6 @@ class BlueAllianceMatchServiceImpl(
     private val gson:Gson = GsonBuilder().create()
     companion object {
         //Event keys: https://docs.google.com/spreadsheets/d/1HqsReMjr5uBuyZjqv14t6bQF2n038GfMmWi3B6vFGiA/edit
-
         val EVENT_KEYS:Array<String> = arrayOf("2022casj", "2016nytr")
     }
 
@@ -32,12 +31,7 @@ class BlueAllianceMatchServiceImpl(
         //TODO("Not yet implemented")
         val matches:MutableList<BlueAllianceMatch> = mutableListOf()
         //matches.clear()
-        val request:HttpRequest = HttpRequest.newBuilder(URI.create("$url/event/$eventKey/matches"))
-            .version(HttpClient.Version.HTTP_2)
-            .headers("X-TBA-Auth-Key", authKey)
-            .timeout(Duration.ofSeconds(15L))
-            .GET()
-            .build()
+        val request:HttpRequest = createRequest("$url/event/$eventKey/matches")
         val response: CompletableFuture<Void>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
             //Do nested hashmap later
             .thenApply(HttpResponse<String>::body)
@@ -114,7 +108,8 @@ class BlueAllianceMatchServiceImpl(
                 }
                 return@thenApply matches
             }
-            .thenAccept(System.out::println)
+            .thenAccept({})
+        response?.get()
         return matches
     }
 
@@ -126,6 +121,13 @@ class BlueAllianceMatchServiceImpl(
         TODO("Not yet implemented")
     }
 
-
     fun getCurrentHeaders(): String? = currentHeaders
+
+    private fun createRequest(url:String):HttpRequest = HttpRequest.newBuilder()
+        .version(HttpClient.Version.HTTP_2)
+        .headers("X-TBA-Auth-Key", authKey)
+        .timeout(Duration.ofSeconds(15L))
+        .uri(URI.create(url))
+        .GET()
+        .build()
 }
