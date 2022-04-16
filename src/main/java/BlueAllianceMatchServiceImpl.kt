@@ -116,7 +116,7 @@ class BlueAllianceMatchServiceImpl(
 
     //Can be used on non Rapid React games
     @Throws(HttpTimeoutException::class, InterruptedException::class, MalformedURLException::class)
-    fun getMatches2(): List<List<Map<String,Any>>>{
+    fun getMatches2(): List<Map<String,Any>>{
         //TODO("Not yet implemented")
         val matches:MutableList<Map<String,Any>> = mutableListOf()
         matches.clear()
@@ -136,7 +136,7 @@ class BlueAllianceMatchServiceImpl(
                 }
                 return@thenApply matches
             }
-        val result:List<List<Map<String,Any>>> = response?.get() as List<List<Map<String,Any>>>
+        val result:List<Map<String,Any>> = response?.get() as List<Map<String, Any>>
         return result
     }
 
@@ -190,8 +190,6 @@ class BlueAllianceMatchServiceImpl(
             }
         val result:List<Map<String,Any>> = response?.get() as List<Map<String,Any>>
         return result
-
-
 
     }
 
