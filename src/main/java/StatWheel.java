@@ -36,40 +36,42 @@ public class StatWheel{
         assert statArray.length == statLabels.length;
         int statLength = statArray.length;
         double center = height/2;
-        double radius = height/2;
+        double radius = height/2.5;
 
         image = new BufferedImage(height, width, BufferedImage.TYPE_INT_ARGB);
         graphics = image.createGraphics();
-        graphics.setStroke(new BasicStroke(2));
-        graphics.setFont(new Font(graphics.getFont().toString(), Font.PLAIN, 30));
+        graphics.setStroke(new BasicStroke(5));
 
-        graphics.setPaint(new Color(120, 120, 120));
-        graphics.fillRect(0, 0, width, height);
+        graphics.setPaint(new Color(0, 0, 0, 120));
+        graphics.fillPolygon(drawRegularPolygon(center, radius*1.25, statLength));
+        // graphics.fillRect(0, 0, width, height);
 
         Polygon backgroundPolygon = drawRegularPolygon(center, radius, statLength);
-        graphics.setPaint(new Color(255, 255, 255));
+        graphics.setPaint(new Color(25, 25, 25));
         graphics.fillPolygon(backgroundPolygon);
-        graphics.setPaint(Color.black);
+        graphics.setPaint(new Color(255, 0, 0));
         graphics.drawPolygon(backgroundPolygon);
 
-        graphics.setPaint(new Color(0, 0, 0, 100));
-        graphics.drawPolygon(drawRegularPolygon(center, radius*.75, statLength));
-        graphics.drawPolygon(drawRegularPolygon(center, radius*.5, statLength));
-        graphics.drawPolygon(drawRegularPolygon(center, radius*.25, statLength));
+        graphics.setFont(new Font(graphics.getFont().toString(), Font.PLAIN, 30));
+        for (int i = 1; i < 4; i++) {
+            graphics.setPaint(new Color((int) (51 * (i+1)), 0, 0));
+            graphics.drawPolygon(drawRegularPolygon(center, (int) Math.round(radius*i*.25), statLength));
+            // graphics.setPaint(new Color(255, 0, 0));
+            graphics.drawString(Integer.toString(i*25)+"%", (int) (width/2), (int) (radius-radius*(i-1)*.25));
+
+        }
         graphics.drawOval((int) (center-1), (int) (center-1), 2, 2);
         for (int i = 0; i < statLength; i++) {
             graphics.drawLine((int) ((center) - (radius) * Math.sin(i * 2 * Math.PI / statLength)), (int) ((center) - (radius) * Math.cos(i * 2 * Math.PI / statLength)), (int) width/2, (int) center);
         }
 
-        graphics.setPaint(new Color(255, 0, 0, 160));
+        graphics.setPaint(new Color(255, 0, 0, 180));
         graphics.fillPolygon(drawStats(center, radius, statLength, statArray));
 
-        graphics.setPaint(Color.black);
-        // for (int i = 0; i < statLength; i++) {
-        //     graphics.drawString(statLabels[i], (int) ((center) - (radius*.8) * Math.sin(i * 2 * Math.PI / statLength)), (int) ((center) - (radius*.8) * Math.cos(i * 2 * Math.PI / statLength)));
-        // }
+        graphics.setPaint(new Color(255, 255, 255));
+        graphics.setFont(new Font(graphics.getFont().toString(), Font.PLAIN, 45));
         for (int i = 0; i < statLength; i++) {
-            graphics.drawString(String.format("%s %02d%%", statLabels[i], (int) (statArray[i]*100)), (int) ((center) - (radius*.8) * Math.sin(i * 2 * Math.PI / statLength) - width/15), (int) ((center) - (radius*.85) * Math.cos(i * 2 * Math.PI / statLength) + height/60));
+            graphics.drawString(String.format("%s %02d%%", statLabels[i], (int) (statArray[i]*100)), (int) ((center) - (radius*.8) * Math.sin(i * 2 * Math.PI / statLength) - width/8), (int) ((center) - (radius*1.05) * Math.cos(i * 2 * Math.PI / statLength) + height/60));
         }
 
     }
@@ -98,7 +100,6 @@ public class StatWheel{
         double[] stats5Rand = new double[5];
         for (int i=0; i<5; i++) {
             stats5Rand[i] = Math.round(Math.random()*100.0)/100.0;
-            System.out.println(stats5Rand[i]);
         }
         StatWheel testWheel5rand = new StatWheel(stats5Rand, stat5label);
         testWheel5rand.saveToFile("./test5Rand.png");
@@ -106,9 +107,24 @@ public class StatWheel{
         double[] stats6Rand = new double[6];
         for (int i=0; i<6; i++) {
             stats6Rand[i] = Math.round(Math.random()*100.0)/100.0;
-            System.out.println(stats6Rand[i]);
         }
         StatWheel testWheel6rand = new StatWheel(stats6Rand, stat6label);
         testWheel6rand.saveToFile("./test6Rand.png");
+        
+        //below stuff pointless to test until I'm able to get all from one team
+        var b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        try {
+            var matchFour = b.getMatches().get(4);
+            System.out.println(matchFour);
+            String statDataLabel[] = {"Points(/100)", "test", "test"};
+            // System.out.println(Math.min(1.0, matchFour.redTotalPoints/100.0));
+            double statsData[] = {Math.min(1.0, matchFour.redTotalPoints/100.0), .5, .5};
+            StatWheel statData = new StatWheel(statsData, statDataLabel);
+            statData.saveToFile("./testFour.png");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+
     }
 }
