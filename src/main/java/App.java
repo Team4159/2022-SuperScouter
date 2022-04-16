@@ -12,7 +12,7 @@ public class App {
     public static void main(String[] args){
         var b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
         try {
-            System.out.println(b.getMatches());
+            System.out.println(b.getMatches2());
         } catch(Exception e){
             e.printStackTrace();
         }

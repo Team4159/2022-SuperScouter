@@ -113,6 +113,32 @@ class BlueAllianceMatchServiceImpl(
         return matches
     }
 
+    @Throws(HttpTimeoutException::class, InterruptedException::class, MalformedURLException::class)
+    fun getMatches2(): List<Map<String,Any>>{
+        //TODO("Not yet implemented")
+        val matches:MutableList<Map<String,Any>> = mutableListOf()
+        //matches.clear()
+        val request:HttpRequest = createRequest("$url/event/$eventKey/matches")
+        val response: CompletableFuture<Void>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            //Do nested hashmap later
+            .thenApply(HttpResponse<String>::body)
+            .thenApply { it ->
+                //println(it)
+                //Serialization
+                //matches = gson.fromJson(it, object: TypeToken<BlueAllianceMatch>(){}.type)
+                val matchesJSON:JsonArray = JsonParser.parseString(it) as JsonArray
+                matchesJSON.map {
+                    //From matchJSON object
+                    val match = gson.fromJson<HashMap<String,Any>>(it, object :TypeToken<HashMap<String,Any>>(){}.type)
+                    matches.add(match)
+                }
+                return@thenApply matches
+            }
+            .thenAccept({})
+        response?.get()
+        return matches
+    }
+
     override fun getMatchesByTeamNumber(teamNumber:Int): List<Any> {
         TODO("Not yet implemented")
     }
