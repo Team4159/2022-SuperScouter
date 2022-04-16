@@ -1,6 +1,5 @@
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
-import com.google.gson.stream.JsonReader
 import java.net.MalformedURLException
 import java.net.URI
 import java.net.http.HttpClient
@@ -141,6 +140,7 @@ class BlueAllianceMatchServiceImpl(
         return result
     }
 
+    @Throws(HttpTimeoutException::class, InterruptedException::class, MalformedURLException::class)
     override fun getMatchesByTeamNumber(teamNumber:Int): List<Map<String,Any>> {
         //TODO("Not yet implemented")
         val matches:MutableList<Map<String,Any>> = mutableListOf()
@@ -162,17 +162,59 @@ class BlueAllianceMatchServiceImpl(
         return result
     }
 
-    override fun getMatchByQualificationNumber(qualNumber:Int, matchType:String): List<Any> {
-        TODO("Not yet implemented")
+    @Throws(java.lang.Exception::class)
+    override fun getMatchByQualificationNumber(matchNumber:Int, matchType:String): List<Any> {
+        //TODO("Not yet implemented")
+        if(
+            matchType.toLowerCase() != "qm" ||
+            matchType.toLowerCase() != "ef" ||
+            matchType.toLowerCase() != "sf" ||
+            matchType.toLowerCase() != "qf" ||
+            matchType.toLowerCase() != "f"
+        ) throw Exception("Invalid match type")
+        val matches:MutableList<Map<String,Any>> = mutableListOf()
+        matches.clear()
+        //Match key format: yyyy[EVENT_CODE]_[COMP_LEVEL]m[MATCH_NUMBER]
+        val request:HttpRequest = createRequest("$url/match/${eventKey}_${matchType}m$matchNumber")
+        val response:CompletableFuture<Any>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenApply(HttpResponse<String>::body)
+            .thenApply {
+                val matchesJSON:JsonArray = JsonParser.parseString(it) as JsonArray
+                matchesJSON.map {
+                    //From matchJSON object
+                    val match = gson.fromJson<HashMap<String,Any>>(it, object :TypeToken<HashMap<String,Any>>(){}.type)
+                    matches.add(match)
+                }
+                return@thenApply matches
+
+            }
+        val result:List<Map<String,Any>> = response?.get() as List<Map<String,Any>>
+        return result
+
+
+
     }
 
     fun getCurrentHeaders(): String? = currentHeaders
 
-    private fun createRequest(url:String):HttpRequest = HttpRequest.newBuilder()
-        .version(HttpClient.Version.HTTP_2)
-        .headers("X-TBA-Auth-Key", authKey)
-        .timeout(Duration.ofSeconds(15L))
-        .uri(URI.create(url))
-        .GET()
-        .build()
+    private fun createRequest(url:String):HttpRequest {
+        try {
+            return HttpRequest.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .headers("X-TBA-Auth-Key", authKey)
+                .timeout(Duration.ofSeconds(15L))
+                .uri(URI.create(url))
+                .GET()
+                .build()
+        } catch(e:MalformedURLException) {
+            e.printStackTrace()
+            return HttpRequest.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .headers("X-TBA-Auth-Key", authKey)
+                .timeout(Duration.ofSeconds(15L))
+                .uri(URI.create(this.url))
+                .GET()
+                .build()
+        }
+    }
 }
