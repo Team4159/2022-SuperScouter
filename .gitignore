@@ -6,6 +6,7 @@ build
 
 # Other stuff
 bin
+.idea
 
 # Please dont add this
 credentials.json
