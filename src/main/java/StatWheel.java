@@ -18,7 +18,7 @@ public class StatWheel{
         Polygon output = new Polygon();
         for (int i = 0; i < vertices; i++) {
             output.addPoint((int) (center - radius * Math.sin(i * 2 * Math.PI / vertices)),
-            (int) (center - radius * Math.cos(i * 2 * Math.PI / vertices)));
+                    (int) (center - radius * Math.cos(i * 2 * Math.PI / vertices)));
         }
 
         return output;
@@ -27,7 +27,7 @@ public class StatWheel{
         Polygon output = new Polygon();
         for (int i = 0; i < vertices; i++) {
             output.addPoint((int) (center - (radius * percentages[i]) * Math.sin(i * 2 * Math.PI / vertices)),
-            (int) (center - (radius * percentages[i]) * Math.cos(i * 2 * Math.PI / vertices)));
+                    (int) (center - (radius * percentages[i]) * Math.cos(i * 2 * Math.PI / vertices)));
         }
 
         return output;

@@ -21,23 +21,26 @@ public class App {
 
         System.out.println("Hello World!");
         try {
-          StatWheel.runTest();
+            StatWheel.runTest();
         } catch (Exception e) {
-          System.out.println("something broke in statwheel");
+            System.out.println("something broke in statwheel");
         }
         try {
-          // Spreadsheet.runTest();
-          List<List<Object>> values = Arrays.asList(
-            Arrays.asList(
-              "Tim", "Joe"
-            ),
-            Arrays.asList(
-              "Linda", "Bob"
-            )
-          );
-          Spreadsheet.insertData(values, "Test!A1:B2" );
+            // Spreadsheet.runTest();
+            List<List<Object>> values = Arrays.asList(
+                    Arrays.asList(
+                        "Tim", "Joe"
+                        ),
+                    Arrays.asList(
+                        "Linda", "Bob"
+                        )
+                    );
+            Spreadsheet.insertData(values, "Test!A1:B2" );
+            Spreadsheet.createTab("Test2");
+            System.out.println(Spreadsheet.checkIfExists("idk"));
         } catch (Exception e) {
-          System.out.println(e);
+            System.out.println(e);
         }
     }
 }
+

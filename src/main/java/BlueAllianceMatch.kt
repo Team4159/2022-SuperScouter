@@ -39,5 +39,6 @@ data class BlueAllianceMatch(
         val blueTotalPoints:Int
 
         //Maybe add YT vid field
+
 )
 
