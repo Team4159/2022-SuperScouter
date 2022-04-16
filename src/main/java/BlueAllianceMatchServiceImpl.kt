@@ -30,7 +30,8 @@ class BlueAllianceMatchServiceImpl(
     @Throws(HttpTimeoutException::class, InterruptedException::class, MalformedURLException::class)
     override fun getMatches(): List<BlueAllianceMatch>{
         //TODO("Not yet implemented")
-        var matches:List<BlueAllianceMatch> = mutableListOf()
+        val matches:MutableList<BlueAllianceMatch> = mutableListOf()
+        matches.clear()
         val request:HttpRequest = HttpRequest.newBuilder(URI.create("$url/event/$eventKey/matches"))
                 .version(HttpClient.Version.HTTP_2)
                 .headers("X-TBA-Auth-Key", authKey)
@@ -38,6 +39,7 @@ class BlueAllianceMatchServiceImpl(
                 .GET()
                 .build()
         val response: CompletableFuture<Void>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                //Do nested hashmap later
                 .thenApply(HttpResponse<String>::body)
                 .thenApply { it ->
                     //println(it)
@@ -50,11 +52,9 @@ class BlueAllianceMatchServiceImpl(
                         val scoreBreakdown:JsonObject = it.asJsonObject.get("score_breakdown").asJsonObject
                         val alliances:JsonObject = it.asJsonObject.get("alliances").asJsonObject
                         val compLevel:String = it.asJsonObject.get("comp_level").asString
-
                         //From scoreBreakdown
                         val red:JsonObject = scoreBreakdown.get("red").asJsonObject
                         val blue:JsonObject = scoreBreakdown.get("blue").asJsonObject
-
 
                         //From blue and red
                         val blueRobot1Climb:String = blue.get("endgameRobot1").asString
@@ -87,7 +87,6 @@ class BlueAllianceMatchServiceImpl(
                         val blueTechFoulCount = blue.get("techFoulCount").asInt
                         val redTechFoulCount = red.get("techFoulCount").asInt
 
-
                         //From Red and Blue alliances
                         val redTotalPoints = red.get("totalPoints").asInt
                         val blueTotalPoints = blue.get("totalPoints").asInt
@@ -95,10 +94,22 @@ class BlueAllianceMatchServiceImpl(
                         val redAlliance:JsonObject = alliances.get("red").asJsonObject
                         val blueAlliance:JsonObject = alliances.get("blue").asJsonObject
 
-
                         //From the alliance objects; Figure out ordering later based on comp_level
                         val redTeams:JsonArray = redAlliance.get("team_keys").asJsonArray
                         val blueTeams:JsonArray = blueAlliance.get("team_keys").asJsonArray
+                        matches.add(BlueAllianceMatch(
+                                compLevel,
+                                winningAlliance,
+                                blueRobot1Climb, blueRobot2Climb, blueRobot3Climb,
+                                redRobot1Climb, redRobot2Climb, redRobot3Climb,
+                                blueRobot1IsTaxi, blueRobot2IsTaxi, blueRobot3IsTaxi,
+                                redRobot1IsTaxi, redRobot2IsTaxi, redRobot3IsTaxi,
+                                blueRP, redRP,
+                                blueQuintetAchieved, redQuintetAchieved,
+                                blueHangarBonusRP, redHangarBonusRP,
+                                blueCargoBonusRP, redCargoBonusRP, blueFoulCount, redFoulCount, blueTechFoulCount, redTechFoulCount,
+                                redTotalPoints, blueTotalPoints
+                        ))
                     }
                 }
                 .thenAccept(System.out::println)
@@ -109,7 +120,7 @@ class BlueAllianceMatchServiceImpl(
         TODO("Not yet implemented")
     }
 
-    override fun getMatchByQualificationNumber(qualNumber:Int): List<Any> {
+    override fun getMatchByQualificationNumber(qualNumber:Int, matchType:String): List<Any> {
         TODO("Not yet implemented")
     }
 
