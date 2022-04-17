@@ -1,46 +1,113 @@
+import com.google.gson.internal.LinkedTreeMap;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.http.HttpTimeoutException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Arrays;
+import java.util.*;
 
 public class App {
-    public static void main(String[] args){
-        var b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+
+    public static void main(String... args) throws InterruptedException, MalformedURLException, HttpTimeoutException {
+
+        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        List<Map<String, Object>> matches;
+
         try {
-            System.out.println(b.getMatches());
+            matches = service.getMatches2();  //size 105
         } catch(Exception e){
+            matches = Collections.emptyList();
+            e.printStackTrace();
+        }
+        try {
+            // Spreadsheet.runTest();
+            List<List<Object>> values = Arrays.asList( //Populate with match values
+                Arrays.asList(
+                    "Tim", "Joe"
+                ),
+                Arrays.asList(
+                    "Linda", "Bob"
+                )
+            );
+            matches.forEach(match -> {
+                //One day we will make a gui that lets one choose fields to include and exlude from the json so no one
+                //has to type things like this ever
+                var matchData = new Vector<Object>();
+                matchData.add(match.get("comp_level"));
+                matchData.add(match.get("match_number"));
+                matchData.add(match.get("winning_alliance"));
+
+                LinkedTreeMap blueScoreBreakdown = ((LinkedTreeMap)((LinkedTreeMap)(match.get("score_breakdown"))).get("blue"));
+
+                matchData.add("Blue Teams " + ((LinkedTreeMap)((LinkedTreeMap)(match.get("alliances"))).get("blue")).get("team_keys").toString() );
+                matchData.add("Blue Alliance Score " + blueScoreBreakdown.get("totalPoints"));
+                matchData.add(
+                    "Blue Taxi Status " +
+                    Arrays.asList(
+                        blueScoreBreakdown.get("taxiRobot1"),
+                        blueScoreBreakdown.get("taxiRobot2"),
+                        blueScoreBreakdown.get("taxiRobot3")
+                    ).toString()
+                );
+                matchData.add(
+                    "Blue Climb Status " +
+                    Arrays.asList(
+                        blueScoreBreakdown.get("endgameRobot1"),
+                        blueScoreBreakdown.get("endgameRobot2"),
+                        blueScoreBreakdown.get("endgameRobot3")
+                    ).toString()
+                );
+                matchData.add("Blue Match RP " + blueScoreBreakdown.get("rp"));
+                matchData.add("Blue Hangar Bonus RP " + blueScoreBreakdown.get("hangarBonusRankingPoint"));
+                matchData.add("Blue Cargo Bonus RP " + blueScoreBreakdown.get("cargoBonusRankingPoint"));
+                matchData.add("Blue Foul Count " + blueScoreBreakdown.get("foulCount"));
+                matchData.add("Blue Tech Foul Count " + blueScoreBreakdown.get("techFoulCount"));
+
+                //Red
+                LinkedTreeMap redScoreBreakdown = ((LinkedTreeMap)((LinkedTreeMap)(match.get("score_breakdown"))).get("red"));
+
+                matchData.add("Red Teams " + ((LinkedTreeMap)((LinkedTreeMap)(match.get("alliances"))).get("red")).get("team_keys").toString() );
+                matchData.add("Red Alliance Score " + redScoreBreakdown.get("totalPoints"));
+                matchData.add(
+                    "Red Taxi Status " +
+                        Arrays.asList(
+                            redScoreBreakdown.get("taxiRobot1"),
+                            redScoreBreakdown.get("taxiRobot2"),
+                            redScoreBreakdown.get("taxiRobot3")
+                        ).toString()
+                );
+                matchData.add(
+                    "Red Climb Status " +
+                        Arrays.asList(
+                            redScoreBreakdown.get("endgameRobot1"),
+                            redScoreBreakdown.get("endgameRobot2"),
+                            redScoreBreakdown.get("endgameRobot3")
+                        ).toString()
+                );
+                matchData.add("Red Match RP " + redScoreBreakdown.get("rp"));
+                matchData.add("Red Hangar Bonus RP " + redScoreBreakdown.get("hangarBonusRankingPoint"));
+                matchData.add("Red Cargo Bonus RP " + redScoreBreakdown.get("cargoBonusRankingPoint"));
+                matchData.add("Red Foul Count " + redScoreBreakdown.get("foulCount"));
+                matchData.add("Red Tech Foul Count " + redScoreBreakdown.get("techFoulCount"));
+
+                //values.add(matchData);
+            });
+            Spreadsheet.insertData(values, "Test!A1:U105" );
+            Spreadsheet.createTab("Test2");
+            System.out.println(Spreadsheet.checkIfExists("idk"));
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-
-
-        System.out.println("Hello World!");
         try {
             StatWheel.runTest();
         } catch (Exception e) {
             System.out.println("something broke in statwheel");
         }
-        try {
-            // Spreadsheet.runTest();
-            List<List<Object>> values = Arrays.asList(
-                    Arrays.asList(
-                        "Tim", "Joe"
-                        ),
-                    Arrays.asList(
-                        "Linda", "Bob"
-                        )
-                    );
-            Spreadsheet.insertData(values, "Test!A1:B2" );
-            Spreadsheet.createTab("Test2");
-            System.out.println(Spreadsheet.checkIfExists("idk"));
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+
     }
 }
 

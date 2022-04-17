@@ -124,7 +124,5 @@ public class StatWheel{
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-
     }
 }
