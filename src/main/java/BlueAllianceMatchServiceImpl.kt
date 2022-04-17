@@ -1,4 +1,5 @@
 import com.google.gson.*
+import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
 import java.net.MalformedURLException
 import java.net.URI
@@ -7,7 +8,10 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.net.http.HttpTimeoutException
 import java.time.Duration
+import java.util.*
 import java.util.concurrent.CompletableFuture
+import kotlin.collections.HashMap
+import kotlin.collections.LinkedHashMap
 import kotlin.jvm.Throws
 
 class BlueAllianceMatchServiceImpl(
@@ -19,6 +23,8 @@ class BlueAllianceMatchServiceImpl(
     private val client:HttpClient = HttpClient.newBuilder().build()
     private val url:String = "https://www.thebluealliance.com/api/v3"
     private lateinit var currentHeaders:String
+    private val lastHttpStatus:Int = 300
+
     private val gson:Gson = GsonBuilder().setPrettyPrinting().create()
     companion object {
         //Event keys: https://docs.google.com/spreadsheets/d/1HqsReMjr5uBuyZjqv14t6bQF2n038GfMmWi3B6vFGiA/edit
@@ -116,7 +122,7 @@ class BlueAllianceMatchServiceImpl(
 
     //Can be used on non Rapid React games
     @Throws(HttpTimeoutException::class, InterruptedException::class, MalformedURLException::class)
-    fun getMatches2(): List<Map<String,Any>>{
+    override fun getMatches2(): List<Map<String,Any>>{
         //TODO("Not yet implemented")
         val matches:MutableList<Map<String,Any>> = mutableListOf()
         matches.clear()
@@ -193,7 +199,28 @@ class BlueAllianceMatchServiceImpl(
 
     }
 
+    fun getAllMatchJsonKeys(serializedJson: Map<String, Any>):List<String> {
+        //WIP
+        val keys:MutableList<String> = (serializedJson as HashMap<String, Any>).keys.toMutableList()
+        val innerJsonList:MutableList<LinkedTreeMap<String,Any>> = mutableListOf()
+        keys.forEach {
+            if(serializedJson.get(it) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
+                val innerJson = serializedJson.get(it)
+                innerJsonList.add(innerJson as LinkedTreeMap<String, Any>)
+            }
+        }
+
+        innerJsonList.forEach{
+            keys.addAll(((innerJsonList as Map<String,Any>) as HashMap<String, Any>).keys.toMutableList())
+        }
+
+        println("Line 214 " + keys)
+        if(innerJsonList.size == 0) return keys
+        return keys
+    }
+
     fun getCurrentHeaders(): String? = currentHeaders
+    fun getLastHttpStatus():Int = lastHttpStatus
 
     private fun createRequest(url:String):HttpRequest {
         try {

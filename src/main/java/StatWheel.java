@@ -109,11 +109,11 @@ public class StatWheel{
     }
     
     public void saveTeam(int teamNumber) {
-        try {
+        /*try {
             ImageIO.write(image, "PNG", new File(PropReader.getProperty("imageCache")+Integer.toString(teamNumber)+".png"));
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void saveToFile(String filename) {

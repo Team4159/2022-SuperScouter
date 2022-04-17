@@ -21,6 +21,8 @@ public class App {
             matches = Collections.emptyList();
             e.printStackTrace();
         }
+        System.out.println(service.getAllMatchJsonKeys(matches.get(0)).getClass());
+        System.out.println(service.getAllMatchJsonKeys(matches.get(0)));
         try {
             // Spreadsheet.runTest();
             /*
@@ -116,10 +118,5 @@ public class App {
             matchSize = (int) (Math.floor(matchSize / 26F) - 1);
         }
         return ("!"+startingCell+":"+letters+initialListSize);
-    }
-
-    private static List<String> getJsonKeys(Map<String, Object> serializedJson){
-        //nah ill do this Sunday
-        return Collections.emptyList();
     }
 }
