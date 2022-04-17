@@ -10,7 +10,6 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 public class App {
-
     public static void main(String... args) throws InterruptedException, MalformedURLException, HttpTimeoutException {
 
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
@@ -109,12 +108,17 @@ public class App {
         }
     }
 
-    private static String createA1Range(String startingCell, int listSize, int initialListSize){
+    private static String createA1Range(String startingCell, int matchSize, int initialListSize){
         var letters = "";
-        while (listSize >= 0) {
-            letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(listSize % 26) + letters;
-            listSize = (int) (Math.floor(listSize / 26F) - 1);
+        while (matchSize >= 0) {
+            letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(matchSize % 26) + letters;
+            matchSize = (int) (Math.floor(matchSize / 26F) - 1);
         }
         return ("!"+startingCell+":"+letters+initialListSize);
+    }
+
+    private static List<String> getJsonKeys(Map<String, Object> serializedJson){
+        //nah ill do this Sunday
+        return Collections.emptyList();
     }
 }
