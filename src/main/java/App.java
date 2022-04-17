@@ -109,5 +109,14 @@ public class App {
         }
 
     }
+
+    private String createA1Range(String startingCell, int listSize){
+        var letters = "";
+        while (listSize >= 0) {
+            letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(listSize % 26) + letters;
+            listSize = (int) (Math.floor(listSize / 26F) - 1);
+        }
+        return letters;
+    }
 }
 
