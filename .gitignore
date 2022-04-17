@@ -16,3 +16,7 @@ config.properties
 
 #test png files
 test*.png
+images
+
+# ignore me
+cardinal.json

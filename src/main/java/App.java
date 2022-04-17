@@ -101,22 +101,14 @@ public class App {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        try {
-            StatWheel.runTest();
-        } catch (Exception e) {
-            System.out.println("something broke in statwheel");
-        }
-
     }
 
-    private String createA1Range(String startingCell, int listSize, int initialListSize){
+    private String createA1Range(String startingCell, int listSize){
         var letters = "";
         while (listSize >= 0) {
             letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(listSize % 26) + letters;
             listSize = (int) (Math.floor(listSize / 26F) - 1);
         }
-        return ("!"+startingCell+":"+letters+initialListSize);
+        return letters;
     }
 }
-

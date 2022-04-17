@@ -5,9 +5,22 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.BasicStroke;
 import javax.imageio.ImageIO;
+import javax.management.RuntimeErrorException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.stream.Stream;
+
+import com.google.gson.Gson; //testing
+import com.google.gson.GsonBuilder;
+import com.google.gson.internal.LinkedTreeMap;
 
 
 public class StatWheel{
@@ -32,8 +45,9 @@ public class StatWheel{
 
         return output;
     }
-    public StatWheel(int width, int height, double[] statArray, String[] statLabels) {
+    public StatWheel(int width, int height, double[] statArray, String[] statLabels, String[] statSuffix) {
         assert statArray.length == statLabels.length;
+        assert statArray.length == statSuffix.length;
         int statLength = statArray.length;
         double center = height/2;
         double radius = height/2.5;
@@ -44,7 +58,6 @@ public class StatWheel{
 
         graphics.setPaint(new Color(0, 0, 0, 120));
         graphics.fillPolygon(drawRegularPolygon(center, radius*1.25, statLength));
-        // graphics.fillRect(0, 0, width, height);
 
         Polygon backgroundPolygon = drawRegularPolygon(center, radius, statLength);
         graphics.setPaint(new Color(25, 25, 25));
@@ -61,6 +74,7 @@ public class StatWheel{
 
         }
         graphics.drawOval((int) (center-1), (int) (center-1), 2, 2);
+        graphics.setPaint(new Color(255, 0, 0));
         for (int i = 0; i < statLength; i++) {
             graphics.drawLine((int) ((center) - (radius) * Math.sin(i * 2 * Math.PI / statLength)), (int) ((center) - (radius) * Math.cos(i * 2 * Math.PI / statLength)), (int) width/2, (int) center);
         }
@@ -69,14 +83,37 @@ public class StatWheel{
         graphics.fillPolygon(drawStats(center, radius, statLength, statArray));
 
         graphics.setPaint(new Color(255, 255, 255));
-        graphics.setFont(new Font(graphics.getFont().toString(), Font.PLAIN, 45));
+        graphics.setFont(new Font(graphics.getFont().toString(), Font.PLAIN, 40));
+        String suffix = "";
+        String displayString = "";
+        int stringWidth = 0;
+        int stringHeight = 0;
         for (int i = 0; i < statLength; i++) {
-            graphics.drawString(String.format("%s %02d%%", statLabels[i], (int) (statArray[i]*100)), (int) ((center) - (radius*.8) * Math.sin(i * 2 * Math.PI / statLength) - width/8), (int) ((center) - (radius*1.05) * Math.cos(i * 2 * Math.PI / statLength) + height/60));
+            if (statSuffix[i] == null) {
+                suffix = "%";
+            } else {
+                suffix = statSuffix[i];
+            }
+            displayString = String.format("%s %02d", statLabels[i], (int) (statArray[i]*100))+suffix;
+            stringWidth = graphics.getFontMetrics().stringWidth(displayString);
+            stringHeight = graphics.getFontMetrics().getHeight();
+            graphics.drawString(displayString, (int) ((center) - (radius*.8) * Math.sin(i * 2 * Math.PI / statLength) - stringWidth / 2.0), (int) ((center) - (radius*1.08) * Math.cos(i * 2 * Math.PI / statLength) + stringHeight/2.0));
         }
 
     }
+    public StatWheel(double[] statArray, String[] statLabels, String[] statSuffix) {
+        this(1000, 1000, statArray, statLabels, statSuffix);
+    }
     public StatWheel(double[] statArray, String[] statLabels) {
-        this(1000, 1000, statArray, statLabels);
+        this(1000, 1000, statArray, statLabels, new String[statArray.length]);
+    }
+    
+    public void saveTeam(int teamNumber) {
+        try {
+            ImageIO.write(image, "PNG", new File(PropReader.getProperty("imageCache")+Integer.toString(teamNumber)+".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void saveToFile(String filename) {
@@ -84,6 +121,127 @@ public class StatWheel{
             ImageIO.write(image, "PNG", new File(filename));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public String toBase64() {
+        //doesn't work with google sheets ;-;
+        //quarter-size image to fit in google sheets
+        int width = 500;//image.getWidth();
+        int height = 500;//image.getHeight();
+        BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D scaledGraphics = scaledImage.createGraphics();
+        scaledGraphics.setPaint(Color.white);
+        // scaledGraphics.drawRect(0, 0, width, height);
+        scaledGraphics.drawImage(image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try
+        {
+            Boolean output = ImageIO.write(scaledImage, "png", os);
+            if (!output) {
+                throw new RuntimeException("Image format is invalid");
+            }
+            // ImageIO.write(scaledImage, "JPEG2000", os);
+            return Base64.getEncoder().encodeToString(os.toByteArray());
+        }
+        catch (final IOException ioe)
+        {
+            throw new UncheckedIOException(ioe);
+        }
+    }
+    private static int indexOf(String input, String[] list) {
+        for (int i=0;i<list.length;i++) {
+            if (input.equals(list[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    public static StatWheel generateRobot(Integer teamNumber) {
+        String teamString = "frc"+Integer.toString(teamNumber);
+        var b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        try {
+            var teamMatches = b.getMatchesByTeamNumber(teamNumber);
+            double totalPoints = 0;
+            double climbs = 0;
+            double taxis = 0;
+            double wins = 0;
+            double autoPoints = 0;
+            for (int i=0;i<teamMatches.size();i++) {//teamMatches.size()
+                var currentMatch = teamMatches.get(i);
+                var blueAlliance = (LinkedTreeMap) (((LinkedTreeMap) currentMatch.get("alliances")).get("blue"));
+                var redAlliance = (LinkedTreeMap) (((LinkedTreeMap) currentMatch.get("alliances")).get("red"));
+
+                //defaults
+                String allianceName = "blue";
+                int teamNo = 0;
+                var allianceObject = blueAlliance;
+
+                ArrayList<String> teamList = (ArrayList<String>) blueAlliance.get("team_keys");
+                teamList.addAll((ArrayList<String>) redAlliance.get("team_keys"));
+
+                switch (indexOf(teamString, (String[]) teamList.toArray(new String[teamList.size()]))) {
+                    case 0:
+                        teamNo = 0;
+                        allianceObject = blueAlliance;
+                        allianceName = "blue";
+                        break;
+                    case 1:
+                        teamNo = 1;
+                        allianceObject = blueAlliance;
+                        allianceName = "blue";
+                        break;
+                    case 2:
+                        teamNo = 2;
+                        allianceObject = blueAlliance;
+                        allianceName = "blue";
+                        break;
+                    case 3:
+                        teamNo = 0;
+                        allianceObject = redAlliance;
+                        allianceName = "red";
+                        break;
+                    case 4:
+                        teamNo = 1;
+                        allianceObject = redAlliance;
+                        allianceName = "red";
+                        break;
+                    case 5:
+                        teamNo = 2;
+                        allianceObject = redAlliance;
+                        allianceName = "red";
+                        break;
+                }
+                var allianceData = (LinkedTreeMap) ((LinkedTreeMap) currentMatch.get("score_breakdown")).get(allianceName);
+                
+                totalPoints += (double) allianceObject.get("score");
+                taxis += allianceData.get("taxiRobot"+Integer.toString(teamNo+1)).equals("Yes") ? 1.0 : 0.0;
+                climbs += !allianceData.get("endgameRobot"+Integer.toString(teamNo+1)).equals("None") ? 1.0 : 0.0;
+                wins += currentMatch.get("winning_alliance").equals(allianceName) ? 1.0 : 0.0;
+                autoPoints += (double) allianceData.get("autoPoints");
+            }
+            double avgPoints = totalPoints / teamMatches.size() / 100;
+            double avgAutoPoints = autoPoints / teamMatches.size() / 100;
+            double taxiPercent = taxis / teamMatches.size();
+            double climbPercent = climbs / teamMatches.size();
+            double winPercent = wins / teamMatches.size();
+
+            double[] statArray = {avgPoints, avgAutoPoints, taxiPercent, climbPercent, winPercent};
+            String[] statLabels = {"Ally Avg", "Ally Auto Avg", "Taxi", "Climb", "Win"};
+            String[] statSuffix = {" pts", " pts", "%", "%", "%"};
+
+            return new StatWheel(statArray, statLabels, statSuffix);
+            // System.out.println(avgPoints);
+            // System.out.println(taxiPercent);
+            // System.out.println(climbPercent);
+            // System.out.println(winPercent);
+            // System.out.println(avgAutoPoints);
+        } catch (Exception e) {
+            e.printStackTrace();
+            double[] statArray = {0, 0, 0, 0, 0};
+            String[] statLabels = {"Error", "Error", "Error", "Error", "Error"};
+            String[] statSuffix = {"", "", "", "", ""};
+            return new StatWheel(statArray, statLabels);
         }
     }
 
@@ -112,17 +270,12 @@ public class StatWheel{
         testWheel6rand.saveToFile("./test6Rand.png");
         
         //below stuff pointless to test until I'm able to get all from one team
-        var b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
-        try {
-            var matchFour = b.getMatches().get(4);
-            System.out.println(matchFour);
-            String statDataLabel[] = {"Points(/100)", "test", "test"};
-            // System.out.println(Math.min(1.0, matchFour.redTotalPoints/100.0));
-            double statsData[] = {Math.min(1.0, matchFour.getRedTotalPoints()/100.0), .5, .5};
-            StatWheel statData = new StatWheel(statsData, statDataLabel);
-            statData.saveToFile("./testFour.png");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        
+        StatWheel.generateRobot(4159).saveTeam(4159);
+        // try (PrintWriter out = new PrintWriter("./4159_base64.txt")) {
+        //     out.println(StatWheel.generateRobot(4159).toBase64());
+        // } catch (FileNotFoundException e) {
+        //     System.out.println("Could not save file");
+        // }
     }
 }
