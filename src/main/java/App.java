@@ -24,6 +24,7 @@ public class App {
         }
         try {
             // Spreadsheet.runTest();
+            /*
             List<List<Object>> values = Arrays.asList( //Populate with match values
                 Arrays.asList(
                     "Tim", "Joe"
@@ -32,6 +33,9 @@ public class App {
                     "Linda", "Bob"
                 )
             );
+            */
+
+            List<List<Object>> values = new ArrayList<>();
             matches.forEach(match -> {
                 //One day we will make a gui that lets one choose fields to include and exlude from the json so no one
                 //has to type things like this ever
@@ -93,9 +97,11 @@ public class App {
                 matchData.add("Red Foul Count " + redScoreBreakdown.get("foulCount"));
                 matchData.add("Red Tech Foul Count " + redScoreBreakdown.get("techFoulCount"));
 
-                //values.add(matchData);
+                values.add(matchData);
             });
-            Spreadsheet.insertData(values, "Test!A1:U105" );
+            System.out.println(values);
+            System.out.println(createA1Range("A1", values.get(0).size(), values.size()));
+            Spreadsheet.insertData(values, createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.createTab("Test2");
             System.out.println(Spreadsheet.checkIfExists("idk"));
         } catch (Exception e) {
@@ -103,7 +109,7 @@ public class App {
         }
     }
 
-    private String createA1Range(String startingCell, int listSize, int initialListSize){
+    private static String createA1Range(String startingCell, int listSize, int initialListSize){
         var letters = "";
         while (listSize >= 0) {
             letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(listSize % 26) + letters;
