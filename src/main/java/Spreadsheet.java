@@ -135,4 +135,37 @@ public class Spreadsheet {
             }
         }
     }
+
+    public static void resizeRange(String sheetName, int startRow, int endRow) throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        List<Request> requests = new ArrayList<>();
+        System.out.println(getSheetId(sheetName));
+        requests.add(new Request().setAutoResizeDimensions(
+                    new AutoResizeDimensionsRequest()
+                        .setDimensions(
+                            new DimensionRange()
+                                .setSheetId(getSheetId(sheetName))
+                                .setDimension("ROWS")
+                                .setStartIndex(startRow)
+                                .setEndIndex(endRow)
+                        )
+                    )
+                );
+        BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+        service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+    }
+
+    public static int getSheetId(String sheetName) throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        Sheets.Spreadsheets.Get response = service.spreadsheets().get(spreadsheetId);
+        response.setIncludeGridData(false);
+        ArrayList<Sheet> sheets = (ArrayList<Sheet>) response.execute().getSheets();
+        for (Sheet sheet : sheets) {
+            if (sheet.getProperties().getTitle().equals(sheetName)) {
+                return sheet.getProperties().getSheetId();
+            }
+        }
+        return 0;
+        // Error handling is for weak programmers that cant write code that works
+    }
 }

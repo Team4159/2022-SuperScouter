@@ -101,6 +101,7 @@ public class App {
             System.out.println(values);
             System.out.println(createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.insertData(values, createA1Range("A1", values.get(0).size(), values.size()));
+            Spreadsheet.resizeRange("Test2", 0, values.size());
             Spreadsheet.createTab("Test2");
             System.out.println(Spreadsheet.checkIfExists("idk"));
         } catch (Exception e) {
