@@ -13,6 +13,8 @@ public class App {
     public static void main(String... args) throws InterruptedException, MalformedURLException, HttpTimeoutException {
 
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        var settingsConfig = SheetFormatSettingsConfig.Companion.getInstance();
+        settingsConfig.createFormatSettingsSheet("Format Settings");
         List<Map<String, Object>> matches;
 
         try {
@@ -22,6 +24,7 @@ public class App {
             e.printStackTrace();
         }
         System.out.println(service.getAllMatchJsonKeys(matches.get(1)));
+
         try {
             // Spreadsheet.runTest();
             /*
