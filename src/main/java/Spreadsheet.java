@@ -168,16 +168,17 @@ public class Spreadsheet {
                     .setRange(
                         new GridRange()
                             .setSheetId(getSheetId(sheetName))
-                            .setStartRowIndex()
-                            .setEndRowIndex()
-                            .setStartColumnIndex()
-                            .setEndColumnIndex()
+                            .setStartRowIndex(startRowIndex)
+                            .setEndRowIndex(endRowIndex)
+                            .setStartColumnIndex(startColIndex)
+                            .setEndColumnIndex(endColIndex)
                     )
                     .setFields("DataValidation")
             )
         );
         BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
         service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+        System.out.println("Completed");
     }
 
     public static int getSheetId(String sheetName) throws IOException, GeneralSecurityException {
