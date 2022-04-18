@@ -106,6 +106,8 @@ public class App {
             Spreadsheet.createTab("Test2");
             System.out.println(Spreadsheet.checkIfExists("idk"));
             System.out.println(Spreadsheet.getData("Test!A1:C3"));
+            System.out.println(Spreadsheet.getData("Test2!A1:C3"));
+            System.out.println(service.getTeams());
         } catch (Exception e) {
             e.printStackTrace();
         }

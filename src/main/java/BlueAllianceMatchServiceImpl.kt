@@ -201,6 +201,28 @@ class BlueAllianceMatchServiceImpl(
 
     }
 
+    // Get all the teams in the event
+    @Throws(HttpTimeoutException::class, InterruptedException::class, MalformedURLException::class)
+    override fun getTeams(): List<Map<String,Any>> {
+        //TODO("Not yet implemented")
+        val teams:MutableList<Map<String,Any>> = mutableListOf()
+        teams.clear()
+        val request:HttpRequest = createRequest("$url/event/$eventKey/teams")
+        val response:CompletableFuture<Any>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenApply(HttpResponse<String>::body)
+            .thenApply {
+                val teamsJSON:JsonArray = JsonParser.parseString(it) as JsonArray
+                teamsJSON.forEach {
+                    //From matchJSON object
+                    val team = gson.fromJson<HashMap<String,Any>>(it, object :TypeToken<HashMap<String,Any>>(){}.type)
+                    teams.add(team)
+                }
+                return@thenApply teams
+            }
+        val result:List<Map<String,Any>> = response?.get() as List<Map<String,Any>>
+        return result
+    }
+
     //Doesnt include array/list keys yet
     fun getAllMatchJsonKeys(serializedJson: Map<String, Any>):List<String> {
         val keySet:Set<String> = (serializedJson).keys
