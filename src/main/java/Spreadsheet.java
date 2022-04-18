@@ -194,4 +194,26 @@ public class Spreadsheet {
         return 0;
         // Error handling is for weak programmers that cant write code that works
     }
+
+    // Function to get data as 2d arrays from a sheet using a range
+    public static ArrayList<ArrayList<String>> getData(String sheetName, String range) throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        ValueRange response = service.spreadsheets().values()
+            .get(spreadsheetId, range)
+            .execute();
+        List<List<Object>> values = response.getValues();
+        ArrayList<ArrayList<String>> data = new ArrayList<>();
+        if (values == null || values.isEmpty()) {
+            System.out.println("No data found.");
+        } else {
+            for (List row : values) {
+                ArrayList<String> rowData = new ArrayList<>();
+                for (Object cell : row) {
+                    rowData.add(cell.toString());
+                }
+                data.add(rowData);
+            }
+        }
+        return data;
+    }
 }

@@ -105,6 +105,7 @@ public class App {
             Spreadsheet.resizeRange("Test2", 0, values.size());
             Spreadsheet.createTab("Test2");
             System.out.println(Spreadsheet.checkIfExists("idk"));
+            System.out.println(Spreadsheet.getData("Test", "A1:C3"));
         } catch (Exception e) {
             e.printStackTrace();
         }
