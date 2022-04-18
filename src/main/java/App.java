@@ -107,7 +107,9 @@ public class App {
             System.out.println(Spreadsheet.checkIfExists("idk"));
             System.out.println(Spreadsheet.getData("Test!A1:C3"));
             System.out.println(Spreadsheet.getData("Test2!A1:C3"));
-            System.out.println(service.getTeams());
+
+            createSheets();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -121,4 +123,26 @@ public class App {
         }
         return ("!"+startingCell+":"+letters+initialListSize);
     }
+
+    private static void createSheets() throws MalformedURLException, HttpTimeoutException, InterruptedException {
+        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        List<Map<String, Object>> teams = service.getTeams();
+        teams.forEach(team -> {
+            System.out.println(team.get("team_number"));
+            long teamNumber = Math.round((double) team.get("team_number"));
+            try {
+                if(Spreadsheet.checkIfExists(teamNumber + "" /* I hate this*/ )) {
+                    System.out.println("Team " + teamNumber + " already exists");
+                }
+                else {
+                    Spreadsheet.createTab(teamNumber + "");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (GeneralSecurityException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }
+
