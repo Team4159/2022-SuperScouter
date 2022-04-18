@@ -21,8 +21,7 @@ public class App {
             matches = Collections.emptyList();
             e.printStackTrace();
         }
-        System.out.println(service.getAllMatchJsonKeys(matches.get(0)).getClass());
-        System.out.println(service.getAllMatchJsonKeys(matches.get(0)));
+        System.out.println(service.getAllMatchJsonKeys(matches.get(1)));
         try {
             // Spreadsheet.runTest();
             /*
@@ -100,7 +99,7 @@ public class App {
 
                 values.add(matchData);
             });
-            System.out.println(values);
+            //System.out.println(values);
             System.out.println(createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.insertData(values, createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.resizeRange("Test2", 0, values.size());
