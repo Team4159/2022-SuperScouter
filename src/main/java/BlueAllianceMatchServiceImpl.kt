@@ -209,15 +209,15 @@ class BlueAllianceMatchServiceImpl(
                 keyList.add(it)
                 getAllMatchJsonKeys((serializedJson.get(it) as Map<String, Any>))
             } else if(serializedJson.get(it) ?: error("serializedJson may be null.") is List<*>){
-                for(i in 0..(serializedJson.get(it) as List<*>).size) {
+                for(i in 0 until (serializedJson.get(it) as List<*>).size) {
                     if((serializedJson.get(it) as List<*>).get(i) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
                         keyList.add(it)
-                        getAllMatchJsonKeys(((serializedJson.get(it) as Map<String, Any>).get(i)) as Map<String, Any>)
+                        getAllMatchJsonKeys((((serializedJson.get(it) as List<*>).get(i) as Map<*, *>)) as Map<String, Any>)
                     }
                 }
             }else
                 keyList.add(it)
-        }
+            }
         return keyList
     }
 
