@@ -196,7 +196,7 @@ public class Spreadsheet {
     }
 
     // Function to get data as 2d arrays from a sheet using a range
-    public static ArrayList<ArrayList<String>> getData(String sheetName, String range) throws IOException, GeneralSecurityException {
+    public static ArrayList<ArrayList<String>> getData(String range) throws IOException, GeneralSecurityException {
         Sheets service = getSheetsService();
         ValueRange response = service.spreadsheets().values()
             .get(spreadsheetId, range)
