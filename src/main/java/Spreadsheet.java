@@ -155,6 +155,31 @@ public class Spreadsheet {
         service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
     }
 
+    //Might need to edit later
+    public static void createCheckbox(String sheetName, int startRowIndex, int endRowIndex, int startColIndex, int endColIndex) throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        List<Request> requests = Collections.emptyList();
+        requests.add(
+            new Request().setRepeatCell(
+                new RepeatCellRequest().setCell(
+                    new CellData().setDataValidation(
+                        new DataValidationRule().setCondition(new BooleanCondition().setType("BOOLEAN")))
+                )
+                    .setRange(
+                        new GridRange()
+                            .setSheetId(getSheetId(sheetName))
+                            .setStartRowIndex()
+                            .setEndRowIndex()
+                            .setStartColumnIndex()
+                            .setEndColumnIndex()
+                    )
+                    .setFields("DataValidation")
+            )
+        );
+        BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+        service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+    }
+
     public static int getSheetId(String sheetName) throws IOException, GeneralSecurityException {
         Sheets service = getSheetsService();
         Sheets.Spreadsheets.Get response = service.spreadsheets().get(spreadsheetId);
