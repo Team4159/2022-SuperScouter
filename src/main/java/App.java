@@ -12,9 +12,9 @@ import java.util.*;
 public class App {
     public static void main(String... args) throws InterruptedException, MalformedURLException, HttpTimeoutException {
 
-        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), PropReader.getProperty("EVENT_KEY"));
         List<Map<String, Object>> matches;
-
+        /*
         try {
             matches = service.getMatches2();  //size 105
         } catch(Exception e){
@@ -22,6 +22,7 @@ public class App {
             e.printStackTrace();
         }
         System.out.println(service.getAllMatchJsonKeys(matches.get(1)));
+        */
         try {
             // Spreadsheet.runTest();
             /*
@@ -35,7 +36,9 @@ public class App {
             );
             */
 
+            /*
             List<List<Object>> values = new ArrayList<>();
+
             matches.forEach(match -> {
                 //One day we will make a gui that lets one choose fields to include and exlude from the json so no one
                 //has to type things like this ever
@@ -100,6 +103,7 @@ public class App {
                 values.add(matchData);
             });
             //System.out.println(values);
+
             System.out.println(createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.insertData(values, createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.resizeRange("Test2", 0, values.size());
@@ -107,9 +111,11 @@ public class App {
             System.out.println(Spreadsheet.checkIfExists("idk"));
             System.out.println(Spreadsheet.getData("Test!A1:C3"));
             System.out.println(Spreadsheet.getData("Test2!A1:C3"));
-
-            createSheets();
-
+            */
+            System.out.println(Spreadsheet.getData("Template!A1:C3"));
+            System.out.println(Spreadsheet.getNumberOfSheets());
+            //System.out.println(service.getTeams());
+            createSheets("Template" );
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,18 +130,30 @@ public class App {
         return ("!"+startingCell+":"+letters+initialListSize);
     }
 
-    private static void createSheets() throws MalformedURLException, HttpTimeoutException, InterruptedException {
-        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+    private static void createSheets(String template) throws IOException, InterruptedException, GeneralSecurityException {
+        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), PropReader.getProperty("EVENT_KEY"));
+        // Insert after existing sheets
+        int index = Spreadsheet.getNumberOfSheets();
         List<Map<String, Object>> teams = service.getTeams();
+        // Sort teams by team number
+        teams.sort(Comparator.comparing(team -> Math.round((double) team.get("team_number"))));
+        // Reverse teams so that they are inserted in the correct order
+        Collections.reverse(teams);
         teams.forEach(team -> {
             System.out.println(team.get("team_number"));
             long teamNumber = Math.round((double) team.get("team_number"));
+            try {
+                // Hopefully this is ratelimited enough
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             try {
                 if(Spreadsheet.checkIfExists(teamNumber + "" /* I hate this*/ )) {
                     System.out.println("Team " + teamNumber + " already exists");
                 }
                 else {
-                    Spreadsheet.createTab(teamNumber + "");
+                    Spreadsheet.copyTab(template, teamNumber + "", index);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
