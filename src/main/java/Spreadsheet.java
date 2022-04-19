@@ -136,6 +136,30 @@ public class Spreadsheet {
         }
     }
 
+    public static void copyTab(String tab1, String tab2, int index) throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        List<Request> requests = new ArrayList<>();
+        requests.add(
+            new Request().setDuplicateSheet(
+                new DuplicateSheetRequest()
+                    .setSourceSheetId(getSheetId(tab1))
+                    .setNewSheetName(tab2)
+                    .setInsertSheetIndex(index)
+            )
+        );
+        BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+        try {
+            service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+        } catch (IOException exception) {
+            if (exception instanceof GoogleJsonResponseException) {
+               GoogleJsonError details = ((GoogleJsonResponseException) exception).getDetails();
+                if (details.getCode() == 400) {
+                     System.out.println("Tab already exists");
+                }
+            }
+        }
+    }
+
     public static void resizeRange(String sheetName, int startRow, int endRow) throws IOException, GeneralSecurityException {
         Sheets service = getSheetsService();
         List<Request> requests = new ArrayList<>();
@@ -179,6 +203,14 @@ public class Spreadsheet {
         BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
         service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
         System.out.println("Completed");
+    }
+
+    public static int getNumberOfSheets() throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        Sheets.Spreadsheets.Get response = service.spreadsheets().get(spreadsheetId);
+        response.setIncludeGridData(false);
+        ArrayList<Sheet> sheets = (ArrayList<Sheet>) response.execute().getSheets();
+        return sheets.size();
     }
 
     public static int getSheetId(String sheetName) throws IOException, GeneralSecurityException {
