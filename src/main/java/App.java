@@ -12,13 +12,10 @@ import java.util.*;
 public class App {
     public static void main(String... args) throws InterruptedException, MalformedURLException, HttpTimeoutException {
 
-<<<<<<< HEAD
-        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
-        var settingsConfig = SheetFormatSettingsConfig.Companion.getInstance();
+
         settingsConfig.createFormatSettingsSheet("Format Settings");
-=======
+
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), PropReader.getProperty("EVENT_KEY"));
->>>>>>> 9db3a528e0751c9fee6935b7f17f1e3463d9ca57
         List<Map<String, Object>> matches;
         /*
         try {
@@ -28,11 +25,8 @@ public class App {
             e.printStackTrace();
         }
         System.out.println(service.getAllMatchJsonKeys(matches.get(1)));
-<<<<<<< HEAD
-
-=======
         */
->>>>>>> 9db3a528e0751c9fee6935b7f17f1e3463d9ca57
+
         try {
             // Spreadsheet.runTest();
             /*
@@ -165,9 +159,7 @@ public class App {
                 else {
                     Spreadsheet.copyTab(template, teamNumber + "", index);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (GeneralSecurityException e) {
+            } catch (IOException | GeneralSecurityException e) {
                 throw new RuntimeException(e);
             }
         });
