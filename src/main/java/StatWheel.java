@@ -123,7 +123,7 @@ public class StatWheel{
 
     public void saveToFile(String filename) {
         try {
-            ImageIO.write(image, "PNG", new File(PropReader.getProperty("imageCache")+filename+".png"));
+            ImageIO.write(image, "PNG", new File(PropReader.getProperty("imageCache")+ "/" + filename+".png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
