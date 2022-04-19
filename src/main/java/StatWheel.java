@@ -109,16 +109,21 @@ public class StatWheel{
     }
     
     public void saveTeam(int teamNumber) {
-        /*try {
-            ImageIO.write(image, "PNG", new File(PropReader.getProperty("imageCache")+Integer.toString(teamNumber)+".png"));
+        try {
+            // Check if folder exists and create if not
+            File folder = new File(PropReader.getProperty("imageCache"));
+            if (!folder.exists()) {
+                folder.mkdir();
+            }
+            ImageIO.write(image, "PNG", new File(PropReader.getProperty("imageCache") + "/" +Integer.toString(teamNumber)+".png"));
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     public void saveToFile(String filename) {
         try {
-            ImageIO.write(image, "PNG", new File(filename));
+            ImageIO.write(image, "PNG", new File(PropReader.getProperty("imageCache")+ "/" + filename+".png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -159,7 +164,7 @@ public class StatWheel{
     }
     public static StatWheel generateRobot(Integer teamNumber) {
         String teamString = "frc"+Integer.toString(teamNumber);
-        var b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        var b = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), PropReader.getProperty("EVENT_KEY"));
         try {
             var teamMatches = b.getMatchesByTeamNumber(teamNumber);
             double totalPoints = 0;
