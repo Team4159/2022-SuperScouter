@@ -12,8 +12,8 @@ import java.util.*;
 public class App {
     public static void main(String... args) throws InterruptedException, MalformedURLException, HttpTimeoutException {
 
-
         //settingsConfig.createFormatSettingsSheet("Format Settings");
+
 
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
         List<Map<String, Object>> matches;
@@ -24,11 +24,12 @@ public class App {
             matches = Collections.emptyList();
             e.printStackTrace();
         }
-        System.out.println(service.getAllMatchJsonKeys(matches.get(1),true));
 
+        System.out.println(service.getAllMatchJsonKeys(matches.get(1),true));
 
         try {
             // Spreadsheet.runTest();
+
             /*
             List<List<Object>> values = Arrays.asList( //Populate with match values
                 Arrays.asList(
@@ -40,7 +41,7 @@ public class App {
             );
             */
 
-            /*
+
             List<List<Object>> values = new ArrayList<>();
 
             matches.forEach(match -> {
@@ -108,6 +109,7 @@ public class App {
             });
             //System.out.println(values);
 
+            /*
             System.out.println(createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.insertData(values, createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.resizeRange("Test2", 0, values.size());
@@ -116,10 +118,10 @@ public class App {
             System.out.println(Spreadsheet.getData("Test!A1:C3"));
             System.out.println(Spreadsheet.getData("Test2!A1:C3"));
             */
-            System.out.println(Spreadsheet.getData("Template!A1:C3"));
-            System.out.println(Spreadsheet.getNumberOfSheets());
+
             //System.out.println(service.getTeams());
-            createSheets("Template" );
+            //createSheets("Template" );
+            StatWheel.generateRobot(4159).saveTeam(4159);
         } catch (Exception e) {
             e.printStackTrace();
         }
