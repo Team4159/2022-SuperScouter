@@ -13,19 +13,19 @@ public class App {
     public static void main(String... args) throws InterruptedException, MalformedURLException, HttpTimeoutException {
 
 
-        settingsConfig.createFormatSettingsSheet("Format Settings");
+        //settingsConfig.createFormatSettingsSheet("Format Settings");
 
-        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), PropReader.getProperty("EVENT_KEY"));
+        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
         List<Map<String, Object>> matches;
-        /*
+
         try {
             matches = service.getMatches2();  //size 105
         } catch(Exception e){
             matches = Collections.emptyList();
             e.printStackTrace();
         }
-        System.out.println(service.getAllMatchJsonKeys(matches.get(1)));
-        */
+        System.out.println(service.getAllMatchJsonKeys(matches.get(1),true));
+
 
         try {
             // Spreadsheet.runTest();

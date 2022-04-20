@@ -26,6 +26,7 @@ class BlueAllianceMatchServiceImpl(
     private lateinit var currentHeaders:String
     private val lastHttpStatus:Int = 300
     private val keyList:ArrayList<String> = ArrayList()
+    private val valuesList:ArrayList<String> = ArrayList()
 
     private val gson:Gson = GsonBuilder().setPrettyPrinting().create()
     companion object {
@@ -224,25 +225,49 @@ class BlueAllianceMatchServiceImpl(
     }
 
     //Doesnt include array/list keys yet
-    fun getAllMatchJsonKeys(serializedJson: Map<String, Any>):List<String> {
+    fun getAllMatchJsonKeys(serializedJson: Map<String, Any>, includeOuterKey:Boolean):List<String> {
         val keySet:Set<String> = (serializedJson).keys
         keySet.forEach { it ->
             if(serializedJson.get(it) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
-                keyList.add(it)
-                getAllMatchJsonKeys((serializedJson.get(it) as Map<String, Any>))
+                if(includeOuterKey) keyList.add(it)
+                getAllMatchJsonKeys((serializedJson.get(it) as Map<String, Any>), includeOuterKey)
             } else if(serializedJson.get(it) ?: error("serializedJson may be null.") is List<*>){
-                for(i in 0 until (serializedJson.get(it) as java.util.ArrayList<*>).size) {
+                for(i in 0 until (serializedJson.get(it) as List<*>).size) {
                     if((serializedJson.get(it) as List<*>).get(i) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
-                        keyList.add(it)
-                        println("Line 215")
-                        println(it)
-                        getAllMatchJsonKeys((((serializedJson.get(it) as List<*>).get(i) as Map<*, *>)) as Map<String, Any>)
+                        if(includeOuterKey) keyList.add(it)
+                        //println(it)
+                        getAllMatchJsonKeys((((serializedJson.get(it) as List<*>).get(i) as Map<*, *>)) as Map<String, Any>, includeOuterKey)
                     }
                 }
             }else
                 keyList.add(it)
             }
         return keyList
+    }
+
+    //WIP
+    fun getMatchJsonValueByKey(serializedJson: Map<String,Any>, vararg keys:String):List<Any>{
+        val keySet:Set<String> = (serializedJson).values as Set<String>
+        keySet.forEach { it ->
+            if(serializedJson.get(it) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
+                //valuesList.add(it)
+                getMatchJsonValueByKey((serializedJson.get(it) as Map<String, Any>), *keys)
+            } else if(serializedJson.get(it) ?: error("serializedJson may be null.") is List<*>){
+                for(i in 0 until (serializedJson.get(it) as List<*>).size) {
+                    if((serializedJson.get(it) as List<*>).get(i) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
+                        //valuesList.add(it)
+                        //println(it)
+                        getMatchJsonValueByKey((((serializedJson.get(it) as List<*>).get(i) as Map<*, *>)) as Map<String, Any>, *keys)
+                    }
+                }
+            }else
+               valuesList.add(it)
+        }
+        return valuesList
+    }
+
+    fun getIsValidEventKey():Boolean{
+        return true
     }
 
     fun getCurrentHeaders(): String? = currentHeaders
