@@ -1,6 +1,7 @@
 import com.google.gson.*
 import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
+import java.lang.NumberFormatException
 import java.net.MalformedURLException
 import java.net.URI
 import java.net.http.HttpClient
@@ -34,6 +35,19 @@ class BlueAllianceMatchServiceImpl(
         val EVENT_KEYS:Map<String,String> = HashMap<String,String>().apply {
             put("SVR", "2022casj")
             put("SFR", "2022casf")
+        }
+
+        fun validateEventKey(eventKey:String):String{
+            try {
+                eventKey.substring(0,4).toInt()
+            } catch(e:NumberFormatException){
+                throw Exception("eventKey does not start with a year. Ex: 2022")
+            }
+            val characters = eventKey.toCharArray()
+            characters.forEach { if(!it.isLowerCase()) throw Exception("Key should be lowercase") }
+            if(eventKey.toLowerCase().substring(4).length != 4) throw Exception("Improperly formatted key. Ex: casf")
+            if(eventKey.toLowerCase().length != 8) throw Exception("Key is not 8 characters")
+            return eventKey
         }
     }
 
@@ -224,7 +238,9 @@ class BlueAllianceMatchServiceImpl(
         return result
     }
 
-    //Doesnt include array/list keys yet
+    //If it contains just the value,  add the key to my list.
+    //If it is an object, store the key and send the value recursively to the same function.
+    //If it is an array, check whether it contains an object, if so I store the key and send the value recursively to the same function.
     fun getAllMatchJsonKeys(serializedJson: Map<String, Any>, includeOuterKey:Boolean):List<String> {
         val keySet:Set<String> = (serializedJson).keys
         keySet.forEach { it ->
@@ -256,7 +272,7 @@ class BlueAllianceMatchServiceImpl(
                 for(i in 0 until (serializedJson.get(it) as List<*>).size) {
                     if((serializedJson.get(it) as List<*>).get(i) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
                         //valuesList.add(it)
-                        //println(it)
+                        //println(it); *keys inserts the values in the keys array as individual params via spread operator
                         getMatchJsonValueByKey((((serializedJson.get(it) as List<*>).get(i) as Map<*, *>)) as Map<String, Any>, *keys)
                     }
                 }
@@ -266,9 +282,6 @@ class BlueAllianceMatchServiceImpl(
         return valuesList
     }
 
-    fun getIsValidEventKey():Boolean{
-        return true
-    }
 
     fun getCurrentHeaders(): String? = currentHeaders
     fun getLastHttpStatus():Int = lastHttpStatus

@@ -7,6 +7,7 @@ import java.nio.file.Paths
 
 class SheetFormatSettingsConfig() {
     private val gson:Gson = GsonBuilder().setPrettyPrinting().create()
+    private val service = BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj")
     //private val writer:Writer = FileWriter(Paths.get("./resources/settings.json").toString())
 
     companion object{
