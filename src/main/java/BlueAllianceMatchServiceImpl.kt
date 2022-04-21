@@ -15,6 +15,8 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 import kotlin.jvm.Throws
+import kotlin.math.ceil
+import kotlin.math.floor
 
 class BlueAllianceMatchServiceImpl(
     private val authKey:String ="", //X-TBA-Auth-Key
@@ -253,6 +255,8 @@ class BlueAllianceMatchServiceImpl(
                         if(includeOuterKey) keyList.add(it)
                         //println(it)
                         getAllMatchJsonKeys((((serializedJson.get(it) as List<*>).get(i) as Map<*, *>)) as Map<String, Any>, includeOuterKey)
+                    } else {
+                        if(!(keyList.contains(it))) keyList.add(it)
                     }
                 }
             }else
@@ -261,23 +265,33 @@ class BlueAllianceMatchServiceImpl(
         return keyList
     }
 
-    //WIP
-    fun getMatchJsonValueByKey(serializedJson: Map<String,Any>, vararg keys:String):List<Any>{
-        val keySet:Set<String> = (serializedJson).values as Set<String>
+    fun getMatchJsonValueByKey(serializedJson: Map<String,Any>, keys:List<String>):List<Any>{
+        val keySet:Collection<Any> = (serializedJson).values
         keySet.forEach { it ->
-            if(serializedJson.get(it) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
-                //valuesList.add(it)
-                getMatchJsonValueByKey((serializedJson.get(it) as Map<String, Any>), *keys)
-            } else if(serializedJson.get(it) ?: error("serializedJson may be null.") is List<*>){
-                for(i in 0 until (serializedJson.get(it) as List<*>).size) {
-                    if((serializedJson.get(it) as List<*>).get(i) ?: error("serializedJson may be null.") is LinkedTreeMap<*, *>){
-                        //valuesList.add(it)
-                        //println(it); *keys inserts the values in the keys array as individual params via spread operator
-                        getMatchJsonValueByKey((((serializedJson.get(it) as List<*>).get(i) as Map<*, *>)) as Map<String, Any>, *keys)
+            if (it is LinkedTreeMap<*, *>) {
+                //valuesList.add(it.toString())
+                getMatchJsonValueByKey(it as Map<String, Any>, keys)
+            } else if (it is List<*>) {
+                for (i in 0 until it.size) {
+                    if (it.get(i) is LinkedTreeMap<*, *>) {
+                        //valuesList.add(it.toString())
+                        getMatchJsonValueByKey(((it.get(i) as Map<*, *>)) as Map<String, Any>, keys)
+                    } else {
+                        //Idk why the team key lists are strings
+                        if(!(valuesList.contains(it.toString()))) valuesList.add(it.toString())
                     }
                 }
-            }else
-               valuesList.add(it)
+            } else {
+                //Check if decimal is int
+                //if(it is Double && ceil(it.toDouble()) == floor(it.toDouble())) valuesList.add(it.toInt().toString())
+                valuesList.add(
+                    if(
+                        it is Double &&
+                        ceil(it.toDouble()) == floor(it.toDouble())
+                    ) it.toInt().toString()
+                    else it.toString()
+                )
+            }
         }
         return valuesList
     }

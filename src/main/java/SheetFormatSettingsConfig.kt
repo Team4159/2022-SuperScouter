@@ -4,6 +4,7 @@ import java.io.File
 import java.io.FileWriter
 import java.io.Writer
 import java.nio.file.Paths
+import java.util.*
 
 class SheetFormatSettingsConfig() {
     private val gson:Gson = GsonBuilder().setPrettyPrinting().create()
@@ -22,8 +23,14 @@ class SheetFormatSettingsConfig() {
     }
 
     fun createFormatSettingsSheet(sheetName:String):Unit {
-        //if(Spreadsheet.checkIfExists(sheetName)) return
-        //Spreadsheet.createTab(sheetName)
+        if(Spreadsheet.checkIfExists(sheetName)) return
+        Spreadsheet.createTab(sheetName)
+        Spreadsheet.insertData(
+            listOf(
+                    listOf(service.getAllMatchJsonKeys(service.getMatches2()[0], true))
+            ), App.createA1Range("A1",105,105)
+        )
+        Spreadsheet.createCheckbox(sheetName, 1,105,1,1)
     }
     fun updateSettingsJson():Unit {
 

@@ -24,8 +24,8 @@ public class App {
             matches = Collections.emptyList();
             e.printStackTrace();
         }
-
         System.out.println(service.getAllMatchJsonKeys(matches.get(1),true));
+        System.out.println(service.getMatchJsonValueByKey(matches.get(1),service.getAllMatchJsonKeys(matches.get(1),true)));
 
         try {
             // Spreadsheet.runTest();
@@ -127,7 +127,7 @@ public class App {
         }
     }
 
-    private static String createA1Range(String startingCell, int matchSize, int initialListSize){
+    public static String createA1Range(String startingCell, int matchSize, int initialListSize){
         var letters = "";
         while (matchSize >= 0) {
             letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(matchSize % 26) + letters;
