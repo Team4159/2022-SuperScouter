@@ -160,7 +160,7 @@ public class Spreadsheet {
         }
     }
 
-    public static void resizeRange(String sheetName, int startRow, int endRow) throws IOException, GeneralSecurityException {
+    public static void resizeRange(String sheetName, int startCol, int endCol) throws IOException, GeneralSecurityException {
         Sheets service = getSheetsService();
         List<Request> requests = new ArrayList<>();
         System.out.println(getSheetId(sheetName));
@@ -170,8 +170,8 @@ public class Spreadsheet {
                             new DimensionRange()
                                 .setSheetId(getSheetId(sheetName))
                                 .setDimension("COLUMNS")
-                                .setStartIndex(startRow)
-                                .setEndIndex(endRow)
+                                .setStartIndex(startCol)
+                                .setEndIndex(endCol)
                         )
                     )
                 );

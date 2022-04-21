@@ -36,6 +36,7 @@ public class App {
         Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
         Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
         Spreadsheet.resizeRange("Format Settings", 0, vals.size());
+        Spreadsheet.resizeRange("Sheet2", 1, 3);
         try {
             // Spreadsheet.runTest();
 
