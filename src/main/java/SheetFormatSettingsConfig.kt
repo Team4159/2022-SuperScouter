@@ -25,6 +25,7 @@ class SheetFormatSettingsConfig() {
     fun createFormatSettingsSheet(sheetName:String):Unit {
         if(Spreadsheet.checkIfExists(sheetName)) return
         Spreadsheet.createTab(sheetName)
+        val matches = service.getMatches2()
         /*Spreadsheet.insertData(
             listOf(
                     listOf(service.getAllMatchJsonKeys(service.getMatches2()[0], false))

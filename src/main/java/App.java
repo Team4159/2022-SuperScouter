@@ -8,12 +8,12 @@ import java.net.MalformedURLException;
 import java.net.http.HttpTimeoutException;
 import java.security.GeneralSecurityException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class App {
     public static void main(String... args) throws InterruptedException, IOException, GeneralSecurityException {
         var settingsConfig = SheetFormatSettingsConfig.Companion.getInstance();
         //settingsConfig.createFormatSettingsSheet("Format Settings");
-        Spreadsheet.createCheckbox("Format Settings", 0,10,0,2);
 
 
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
@@ -27,7 +27,15 @@ public class App {
         }
         System.out.println(service.getAllMatchJsonKeys(matches.get(1),true));
         System.out.println(service.getMatchJsonValueByKey(matches.get(1),service.getAllMatchJsonKeys(matches.get(1),true)));
-
+        var vals = new ArrayList<List<Object>>();
+        service.getAllMatchJsonKeys(matches.get(1),true).forEach(
+            item -> {
+                vals.add(Collections.singletonList(item));
+            }
+        );
+        Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
+        Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
+        Spreadsheet.resizeRange("Format Settings", 0, vals.size());
         try {
             // Spreadsheet.runTest();
 
