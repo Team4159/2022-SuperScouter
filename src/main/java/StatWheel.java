@@ -56,6 +56,9 @@ public class StatWheel{
         graphics = image.createGraphics();
         graphics.setStroke(new BasicStroke(5));
 
+        graphics.setPaint(Color.black);
+        graphics.fillRect(0, 0, width, height);
+
         graphics.setPaint(new Color(0, 0, 0, 120));
         graphics.fillPolygon(drawRegularPolygon(center, radius*1.25, statLength));
 
@@ -108,7 +111,7 @@ public class StatWheel{
         this(1000, 1000, statArray, statLabels, new String[statArray.length]);
     }
     
-    public void saveTeam(int teamNumber) {
+    public String saveTeam(int teamNumber) {
         try {
             // Check if folder exists and create if not
             File folder = new File(PropReader.getProperty("imageCache"));
@@ -119,6 +122,7 @@ public class StatWheel{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return (String) "https://"+PropReader.getProperty("serverUrl")+"/"+Integer.toString(teamNumber)+".png";
     }
 
     public void saveToFile(String filename) {
@@ -276,7 +280,7 @@ public class StatWheel{
         
         //below stuff pointless to test until I'm able to get all from one team
         
-        StatWheel.generateRobot(4159).saveTeam(4159);
+        System.out.println(StatWheel.generateRobot(4159).saveTeam(4159));
         // try (PrintWriter out = new PrintWriter("./4159_base64.txt")) {
         //     out.println(StatWheel.generateRobot(4159).toBase64());
         // } catch (FileNotFoundException e) {
