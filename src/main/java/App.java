@@ -10,9 +10,10 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 public class App {
-    public static void main(String... args) throws InterruptedException, MalformedURLException, HttpTimeoutException {
-
+    public static void main(String... args) throws InterruptedException, IOException, GeneralSecurityException {
+        var settingsConfig = SheetFormatSettingsConfig.Companion.getInstance();
         //settingsConfig.createFormatSettingsSheet("Format Settings");
+        Spreadsheet.createCheckbox("Format Settings", 0,10,0,2);
 
 
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");

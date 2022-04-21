@@ -25,12 +25,12 @@ class SheetFormatSettingsConfig() {
     fun createFormatSettingsSheet(sheetName:String):Unit {
         if(Spreadsheet.checkIfExists(sheetName)) return
         Spreadsheet.createTab(sheetName)
-        Spreadsheet.insertData(
+        /*Spreadsheet.insertData(
             listOf(
-                    listOf(service.getAllMatchJsonKeys(service.getMatches2()[0], true))
-            ), App.createA1Range("A1",105,105)
-        )
-        Spreadsheet.createCheckbox(sheetName, 1,105,1,1)
+                    listOf(service.getAllMatchJsonKeys(service.getMatches2()[0], false))
+            ), App.createA1Range("A1",105,1)
+        )*/
+        Spreadsheet.createCheckbox(sheetName, 1,105,2,2)
     }
     fun updateSettingsJson():Unit {
 

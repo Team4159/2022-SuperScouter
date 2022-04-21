@@ -182,7 +182,7 @@ public class Spreadsheet {
     //Might need to edit later
     public static void createCheckbox(String sheetName, int startRowIndex, int endRowIndex, int startColIndex, int endColIndex) throws IOException, GeneralSecurityException {
         Sheets service = getSheetsService();
-        List<Request> requests = Collections.emptyList();
+        List<Request> requests = new ArrayList<>(Collections.emptyList());
         requests.add(
             new Request().setRepeatCell(
                 new RepeatCellRequest().setCell(
