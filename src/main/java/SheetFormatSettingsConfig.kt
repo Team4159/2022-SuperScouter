@@ -6,7 +6,7 @@ import java.io.Writer
 import java.nio.file.Paths
 import java.util.*
 
-class SheetFormatSettingsConfig() {
+class SheetFormatSettingsConfig {
     private val gson:Gson = GsonBuilder().setPrettyPrinting().create()
     private val service = BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj")
     //private val writer:Writer = FileWriter(Paths.get("./resources/settings.json").toString())
@@ -21,6 +21,7 @@ class SheetFormatSettingsConfig() {
             return settingsConfig
         }
     }
+
 
     fun createFormatSettingsSheet(sheetName:String):Unit {
         if(Spreadsheet.checkIfExists(sheetName)) return

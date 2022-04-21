@@ -187,7 +187,8 @@ public class Spreadsheet {
             new Request().setRepeatCell(
                 new RepeatCellRequest().setCell(
                     new CellData().setDataValidation(
-                        new DataValidationRule().setCondition(new BooleanCondition().setType("BOOLEAN")))
+                        new DataValidationRule().setCondition(new BooleanCondition().setType("BOOLEAN"))
+                    )
                 )
                     .setRange(
                         new GridRange()
