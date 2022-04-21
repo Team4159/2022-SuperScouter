@@ -169,7 +169,7 @@ public class Spreadsheet {
                         .setDimensions(
                             new DimensionRange()
                                 .setSheetId(getSheetId(sheetName))
-                                .setDimension("ROWS")
+                                .setDimension("COLUMNS")
                                 .setStartIndex(startRow)
                                 .setEndIndex(endRow)
                         )
