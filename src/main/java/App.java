@@ -37,20 +37,20 @@ public class App {
         for(int i=0;i<vals.size();i++){
             vals2.add(Collections.singletonList(true));
         }
-        Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
-        Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
-        Spreadsheet.resizeRange("Format Settings", 0, vals.size());
-        Spreadsheet.insertData(vals2, "Format Settings"+createA1Range("B1", 1, vals.size()));
-        Spreadsheet.resizeRange("Sheet2", 1, 3);
-        var dataAs2DList = Spreadsheet.getData("Format Settings"+createA1Range("A1",1,vals.size()));
-        var includedEntries = new ArrayList<String>(Collections.emptyList());
-        System.out.println(dataAs2DList);
-        dataAs2DList.forEach(pair -> {
-            if(Boolean.parseBoolean(pair.get(1))){
-                includedEntries.add(pair.get(0));
-            }
-        });
-        System.out.println(includedEntries);
+        // Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
+        // Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
+        // Spreadsheet.resizeRange("Format Settings", 0, vals.size());
+        // Spreadsheet.insertData(vals2, "Format Settings"+createA1Range("B1", 1, vals.size()));
+        // Spreadsheet.resizeRange("Sheet2", 1, 3);
+        // var dataAs2DList = Spreadsheet.getData("Format Settings"+createA1Range("A1",1,vals.size()));
+        // var includedEntries = new ArrayList<String>(Collections.emptyList());
+        // System.out.println(dataAs2DList);
+        // dataAs2DList.forEach(pair -> {
+        //     if(Boolean.parseBoolean(pair.get(1))){
+        //         includedEntries.add(pair.get(0));
+        //     }
+        // });
+        // System.out.println(includedEntries);
         //System.out.println(Spreadsheet.getData());
         try {
             // Spreadsheet.runTest();
@@ -146,6 +146,7 @@ public class App {
 
             //System.out.println(service.getTeams());
             //createSheets("Template" );
+            System.out.println(Spreadsheet.getTabNames());
             StatWheel.generateRobot(4159).saveTeam(4159);
         } catch (Exception e) {
             e.printStackTrace();

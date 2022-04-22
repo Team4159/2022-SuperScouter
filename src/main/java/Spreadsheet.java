@@ -249,4 +249,16 @@ public class Spreadsheet {
         }
         return data;
     }
+
+    public static ArrayList<String> getTabNames() throws IOException, GeneralSecurityException {
+        Sheets service = getSheetsService();
+        Sheets.Spreadsheets.Get response = service.spreadsheets().get(spreadsheetId);
+        response.setIncludeGridData(false);
+        ArrayList<Sheet> sheets = (ArrayList<Sheet>) response.execute().getSheets();
+        ArrayList<String> sheetNames = new ArrayList<>();
+        for (Sheet sheet : sheets) {
+            sheetNames.add(sheet.getProperties().getTitle());
+        }
+        return sheetNames;
+    }
 }
