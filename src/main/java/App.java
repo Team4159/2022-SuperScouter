@@ -18,16 +18,19 @@ public class App {
 
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022carv");
         List<Map<String, Object>> matches;
-        System.out.println(service.getMatchesByTeamNumber(4159))''
+        System.out.println(service.getMatchesByTeamNumber(4159).get(0).getClass());
         Spreadsheet.getTabNames().forEach(
             tabName -> {
                 try {
                     var tabNameAsInt = Integer.parseInt(tabName);
-                    service.getMatchesByTeamNumber(tabNameAsInt);
+                    var teamMatches = service.getMatchesByTeamNumber(tabNameAsInt);
+                    ArrayList<List<Object>> values1 = new ArrayList(Arrays.asList());
+                    Spreadsheet.insertData(values1, tabName+createA1Range("A1",12,1));
+                    //Repeat for other values
 
                 } catch (NumberFormatException e){
                     System.out.println("Non team number sheet name");
-                } catch (InterruptedException | HttpTimeoutException | MalformedURLException e) {
+                } catch (InterruptedException | GeneralSecurityException | IOException e) {
                     e.printStackTrace();
                 }
             }
