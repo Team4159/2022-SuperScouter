@@ -16,8 +16,22 @@ public class App {
         //settingsConfig.createFormatSettingsSheet("Format Settings");
 
 
-        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
+        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022carv");
         List<Map<String, Object>> matches;
+        System.out.println(service.getMatchesByTeamNumber(4159))''
+        Spreadsheet.getTabNames().forEach(
+            tabName -> {
+                try {
+                    var tabNameAsInt = Integer.parseInt(tabName);
+                    service.getMatchesByTeamNumber(tabNameAsInt);
+
+                } catch (NumberFormatException e){
+                    System.out.println("Non team number sheet name");
+                } catch (InterruptedException | HttpTimeoutException | MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+        );
 
         try {
             matches = service.getMatches2();  //size 105
@@ -25,33 +39,7 @@ public class App {
             matches = Collections.emptyList();
             e.printStackTrace();
         }
-        System.out.println(service.getAllMatchJsonKeys(matches.get(1),false));
-        System.out.println(service.getMatchJsonValueByKey(matches.get(1),service.getAllMatchJsonKeys(matches.get(1),false)));
-        var vals = new ArrayList<List<Object>>();
-        service.getAllMatchJsonKeys(matches.get(1),false).forEach(
-            item -> {
-                vals.add(Collections.singletonList(item));
-            }
-        );
-        var vals2 = new ArrayList<List<Object>>();
-        for(int i=0;i<vals.size();i++){
-            vals2.add(Collections.singletonList(true));
-        }
-        // Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
-        // Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
-        // Spreadsheet.resizeRange("Format Settings", 0, vals.size());
-        // Spreadsheet.insertData(vals2, "Format Settings"+createA1Range("B1", 1, vals.size()));
-        // Spreadsheet.resizeRange("Sheet2", 1, 3);
-        // var dataAs2DList = Spreadsheet.getData("Format Settings"+createA1Range("A1",1,vals.size()));
-        // var includedEntries = new ArrayList<String>(Collections.emptyList());
-        // System.out.println(dataAs2DList);
-        // dataAs2DList.forEach(pair -> {
-        //     if(Boolean.parseBoolean(pair.get(1))){
-        //         includedEntries.add(pair.get(0));
-        //     }
-        // });
-        // System.out.println(includedEntries);
-        //System.out.println(Spreadsheet.getData());
+
         try {
             // Spreadsheet.runTest();
 
