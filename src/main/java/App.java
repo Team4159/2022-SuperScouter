@@ -1,4 +1,5 @@
 import com.google.gson.internal.LinkedTreeMap;
+import org.checkerframework.checker.units.qual.C;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,13 +25,62 @@ public class App {
                 try {
                     var tabNameAsInt = Integer.parseInt(tabName);
                     var teamMatches = service.getMatchesByTeamNumber(tabNameAsInt);
-                    ArrayList<List<Object>> values1 = new ArrayList(Arrays.asList());
-                    Spreadsheet.insertData(values1, tabName+createA1Range("A1",12,1));
+                    var alliancePoints = new ArrayList<List<Object>>(Collections.emptyList());
+                    var climbData = new ArrayList<List<Object>>(Collections.emptyList());
+                    var taxiData = new ArrayList<List<Object>>(Collections.emptyList());
+                    var rpData = new ArrayList<List<Object>>(Collections.emptyList());
+                    var cargoRPData = new ArrayList<List<Object>>(Collections.emptyList());
+                    var hangarRPData = new ArrayList<List<Object>>(Collections.emptyList());
+
+
+                    //Link teamKeys & climbData to taxiRobot1,2,3 etc
+                    teamMatches.forEach(match -> {
+                        var blueAlliance = ((LinkedTreeMap<String,Object>)match.get("alliances")).get("red");
+                        var redAlliance = ((LinkedTreeMap<String,Object>)match.get("alliances")).get("red");
+                        var blueScoreBreakdown = ((LinkedTreeMap<String,Object>)match.get("score_breakdown")).get("blue");
+                        var redScoreBreakdown = ((LinkedTreeMap<String,Object>)match.get("score_breakdown")).get("red");
+                        ArrayList<String> blueTeams = (ArrayList<String>) ((LinkedTreeMap<String,Object>)blueAlliance).get("team_keys");
+                        ArrayList<String> redTeams = (ArrayList<String>) ((LinkedTreeMap<String,Object>)redAlliance).get("team_keys");
+                        //Remove strings and convert to ints, check which list they're in, then get position in list
+                        if(blueTeams.contains("frc"+tabNameAsInt)) {
+                            int teamPosition = (blueTeams.indexOf("frc"+tabNameAsInt)+1);
+                            var taxi = ((LinkedTreeMap)blueScoreBreakdown).get("taxiRobot"+teamPosition);
+                            var climb = ((LinkedTreeMap)blueScoreBreakdown).get("endgameRobot"+teamPosition);
+                            var totalPoints = ((LinkedTreeMap)blueScoreBreakdown).get("totalPoints");
+                            var rp = ((LinkedTreeMap)blueScoreBreakdown).get("rp");
+                            var hangarBonusRP = ((LinkedTreeMap)blueScoreBreakdown).get("hangarBonusRankingPoint");
+                            var cargoBonusRP = ((LinkedTreeMap)blueScoreBreakdown).get("cargoBonusRankingPoint");
+                            alliancePoints.add(Collections.singletonList(totalPoints));
+                            climbData.add(Collections.singletonList(climb));
+                            taxiData.add(Collections.singletonList(taxi));
+                            rpData.add(Collections.singletonList(rp));
+                            cargoRPData.add(Collections.singletonList(cargoBonusRP));
+                            hangarRPData.add(Collections.singletonList(hangarRPData));
+                            try {
+                                Spreadsheet.insertData(taxiData, tabName+createA1Range("C8",taxiData.size(),1));
+                                Spreadsheet.insertData(alliancePoints,tabName+createA1Range("C9",alliancePoints.size(),1));
+                                Spreadsheet.insertData(climbData,tabName+createA1Range("C18",climbData.size(),1));
+                                Spreadsheet.insertData(rpData,tabName+createA1Range("C27",rpData.size(),1));
+                                Spreadsheet.insertData(cargoRPData,tabName+createA1Range("C26",cargoRPData.size(),1));
+                                Spreadsheet.insertData(hangarRPData,tabName+createA1Range("C25",hangarRPData.size(),1));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (GeneralSecurityException e) {
+                                e.printStackTrace();
+                            }
+                            System.out.println(climb);
+                        }
+                        if(redTeams.contains("frc"+tabNameAsInt)) {
+                            //System.out.println("red");
+                        }
+                    });
+
+                    //Spreadsheet.insertData(alliancePoints, tabName+createA1Range("A1",12,1));
                     //Repeat for other values
 
                 } catch (NumberFormatException e){
                     System.out.println("Non team number sheet name");
-                } catch (InterruptedException | GeneralSecurityException | IOException e) {
+                } catch (InterruptedException /*| GeneralSecurityException*/ | IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -42,7 +92,8 @@ public class App {
             matches = Collections.emptyList();
             e.printStackTrace();
         }
-
+        //System.out.println(service.getAllMatchJsonKeys(matches.get(1),false));
+        //System.out.println(service.getMatchJsonValueByKey(matches.get(1),service.getAllMatchJsonKeys(matches.get(1),false)));
         try {
             // Spreadsheet.runTest();
 
