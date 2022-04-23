@@ -55,7 +55,8 @@ public class App {
                             taxiData.add(Collections.singletonList(taxi));
                             rpData.add(Collections.singletonList(rp));
                             cargoRPData.add(Collections.singletonList(cargoBonusRP));
-                            hangarRPData.add(Collections.singletonList(hangarRPData));
+                            hangarRPData.add(Collections.singletonList(hangarBonusRP));
+
                             try {
                                 Spreadsheet.insertData(taxiData, tabName+createA1Range("C8",taxiData.size(),1));
                                 Spreadsheet.insertData(alliancePoints,tabName+createA1Range("C9",alliancePoints.size(),1));
@@ -63,15 +64,37 @@ public class App {
                                 Spreadsheet.insertData(rpData,tabName+createA1Range("C27",rpData.size(),1));
                                 Spreadsheet.insertData(cargoRPData,tabName+createA1Range("C26",cargoRPData.size(),1));
                                 Spreadsheet.insertData(hangarRPData,tabName+createA1Range("C25",hangarRPData.size(),1));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } catch (GeneralSecurityException e) {
+                            } catch (IOException | GeneralSecurityException e) {
                                 e.printStackTrace();
                             }
-                            System.out.println(climb);
+                            //System.out.println(climb);
                         }
                         if(redTeams.contains("frc"+tabNameAsInt)) {
                             //System.out.println("red");
+                            int teamPosition = (blueTeams.indexOf("frc"+tabNameAsInt)+1);
+                            var taxi = ((LinkedTreeMap)blueScoreBreakdown).get("taxiRobot"+teamPosition);
+                            var climb = ((LinkedTreeMap)blueScoreBreakdown).get("endgameRobot"+teamPosition);
+                            var totalPoints = ((LinkedTreeMap)blueScoreBreakdown).get("totalPoints");
+                            var rp = ((LinkedTreeMap)blueScoreBreakdown).get("rp");
+                            var hangarBonusRP = ((LinkedTreeMap)blueScoreBreakdown).get("hangarBonusRankingPoint");
+                            var cargoBonusRP = ((LinkedTreeMap)blueScoreBreakdown).get("cargoBonusRankingPoint");
+                            alliancePoints.add(Collections.singletonList(totalPoints));
+                            climbData.add(Collections.singletonList(climb));
+                            taxiData.add(Collections.singletonList(taxi));
+                            rpData.add(Collections.singletonList(rp));
+                            cargoRPData.add(Collections.singletonList(cargoBonusRP));
+                            hangarRPData.add(Collections.singletonList(hangarBonusRP));
+
+                            try {
+                                Spreadsheet.insertData(taxiData, tabName+createA1Range("C8",taxiData.size(),1));
+                                Spreadsheet.insertData(alliancePoints,tabName+createA1Range("C9",alliancePoints.size(),1));
+                                Spreadsheet.insertData(climbData,tabName+createA1Range("C18",climbData.size(),1));
+                                Spreadsheet.insertData(rpData,tabName+createA1Range("C27",rpData.size(),1));
+                                Spreadsheet.insertData(cargoRPData,tabName+createA1Range("C26",cargoRPData.size(),1));
+                                Spreadsheet.insertData(hangarRPData,tabName+createA1Range("C25",hangarRPData.size(),1));
+                            } catch (IOException | GeneralSecurityException e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
 
