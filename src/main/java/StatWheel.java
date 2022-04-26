@@ -1,3 +1,4 @@
+//Image editing classes
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.image.BufferedImage;
@@ -5,23 +6,30 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.BasicStroke;
 import javax.imageio.ImageIO;
-import javax.management.RuntimeErrorException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+//Exceptions
+import javax.management.RuntimeErrorException;
+import java.io.UncheckedIOException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+//Writing image to file
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+
+//Prob unused: saving image as base64 string
 import java.io.PrintWriter;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Stream;
 
+//Read data from bluealliance
 import com.google.gson.Gson; //testing
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.LinkedTreeMap;
 
+//Not sure where used
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class StatWheel{
     public BufferedImage image;
@@ -29,15 +37,16 @@ public class StatWheel{
 
     public static Polygon drawRegularPolygon(double center, double radius, int vertices) {
         Polygon output = new Polygon();
+        //basically draw a circle, divide the circumference of that circle by the amount of verticies, then draw a shape using the coordinates of the verticies
         for (int i = 0; i < vertices; i++) {
             output.addPoint((int) (center - radius * Math.sin(i * 2 * Math.PI / vertices)),
                     (int) (center - radius * Math.cos(i * 2 * Math.PI / vertices)));
         }
-
         return output;
     }
     public static Polygon drawStats(double center, double radius, int vertices, double[] percentages) {
         Polygon output = new Polygon();
+        //Same as drawRegularPolygon but changes the radius according to the value in percentages
         for (int i = 0; i < vertices; i++) {
             output.addPoint((int) (center - (radius * percentages[i]) * Math.sin(i * 2 * Math.PI / vertices)),
                     (int) (center - (radius * percentages[i]) * Math.cos(i * 2 * Math.PI / vertices)));
@@ -49,20 +58,22 @@ public class StatWheel{
         assert statArray.length == statLabels.length;
         assert statArray.length == statSuffix.length;
         int statLength = statArray.length;
+        //in seperate variables for easy modification
         double center = height/2;
         double radius = height/2.5;
 
         image = new BufferedImage(height, width, BufferedImage.TYPE_INT_ARGB);
         graphics = image.createGraphics();
-        graphics.setStroke(new BasicStroke(5));
+        graphics.setStroke(new BasicStroke(5)); //line width
 
         graphics.setPaint(Color.black);
-        graphics.fillRect(0, 0, width, height);
+        graphics.fillRect(0, 0, width, height); //fill background with black, makes stuff easier to read
 
         graphics.setPaint(new Color(0, 0, 0, 120));
-        graphics.fillPolygon(drawRegularPolygon(center, radius*1.25, statLength));
+        graphics.fillPolygon(drawRegularPolygon(center, radius*1.25, statLength)); //draw background's background
 
-        Polygon backgroundPolygon = drawRegularPolygon(center, radius, statLength);
+        //draw background
+        Polygon backgroundPolygon = drawRegularPolygon(center, radius, statLength); 
         graphics.setPaint(new Color(25, 25, 25));
         graphics.fillPolygon(backgroundPolygon);
         graphics.setPaint(new Color(255, 0, 0));
@@ -281,10 +292,5 @@ public class StatWheel{
         //below stuff pointless to test until I'm able to get all from one team
         
         System.out.println(StatWheel.generateRobot(4159).saveTeam(4159));
-        // try (PrintWriter out = new PrintWriter("./4159_base64.txt")) {
-        //     out.println(StatWheel.generateRobot(4159).toBase64());
-        // } catch (FileNotFoundException e) {
-        //     System.out.println("Could not save file");
-        // }
     }
 }
