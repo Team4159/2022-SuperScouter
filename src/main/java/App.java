@@ -19,95 +19,7 @@ public class App {
 
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022carv");
         List<Map<String, Object>> matches;
-        System.out.println(service.getMatchesByTeamNumber(4159).get(0).getClass());
-        Spreadsheet.getTabNames().forEach(
-            tabName -> {
-                try {
-                    var tabNameAsInt = Integer.parseInt(tabName);
-                    var teamMatches = service.getMatchesByTeamNumber(tabNameAsInt);
-                    var alliancePoints = new ArrayList<List<Object>>(Collections.emptyList());
-                    var climbData = new ArrayList<List<Object>>(Collections.emptyList());
-                    var taxiData = new ArrayList<List<Object>>(Collections.emptyList());
-                    var rpData = new ArrayList<List<Object>>(Collections.emptyList());
-                    var cargoRPData = new ArrayList<List<Object>>(Collections.emptyList());
-                    var hangarRPData = new ArrayList<List<Object>>(Collections.emptyList());
-
-
-                    //Link teamKeys & climbData to taxiRobot1,2,3 etc
-                    teamMatches.forEach(match -> {
-                        var blueAlliance = ((LinkedTreeMap<String,Object>)match.get("alliances")).get("red");
-                        var redAlliance = ((LinkedTreeMap<String,Object>)match.get("alliances")).get("red");
-                        var blueScoreBreakdown = ((LinkedTreeMap<String,Object>)match.get("score_breakdown")).get("blue");
-                        var redScoreBreakdown = ((LinkedTreeMap<String,Object>)match.get("score_breakdown")).get("red");
-                        ArrayList<String> blueTeams = (ArrayList<String>) ((LinkedTreeMap<String,Object>)blueAlliance).get("team_keys");
-                        ArrayList<String> redTeams = (ArrayList<String>) ((LinkedTreeMap<String,Object>)redAlliance).get("team_keys");
-                        //Remove strings and convert to ints, check which list they're in, then get position in list
-                        if(blueTeams.contains("frc"+tabNameAsInt)) {
-                            int teamPosition = (blueTeams.indexOf("frc"+tabNameAsInt)+1);
-                            var taxi = ((LinkedTreeMap)blueScoreBreakdown).get("taxiRobot"+teamPosition);
-                            var climb = ((LinkedTreeMap)blueScoreBreakdown).get("endgameRobot"+teamPosition);
-                            var totalPoints = ((LinkedTreeMap)blueScoreBreakdown).get("totalPoints");
-                            var rp = ((LinkedTreeMap)blueScoreBreakdown).get("rp");
-                            var hangarBonusRP = ((LinkedTreeMap)blueScoreBreakdown).get("hangarBonusRankingPoint");
-                            var cargoBonusRP = ((LinkedTreeMap)blueScoreBreakdown).get("cargoBonusRankingPoint");
-                            alliancePoints.add(Collections.singletonList(totalPoints));
-                            climbData.add(Collections.singletonList(climb));
-                            taxiData.add(Collections.singletonList(taxi));
-                            rpData.add(Collections.singletonList(rp));
-                            cargoRPData.add(Collections.singletonList(cargoBonusRP));
-                            hangarRPData.add(Collections.singletonList(hangarBonusRP));
-
-                            try {
-                                Spreadsheet.insertData(taxiData, tabName+createA1Range("C8",taxiData.size(),1));
-                                Spreadsheet.insertData(alliancePoints,tabName+createA1Range("C9",alliancePoints.size(),1));
-                                Spreadsheet.insertData(climbData,tabName+createA1Range("C18",climbData.size(),1));
-                                Spreadsheet.insertData(rpData,tabName+createA1Range("C27",rpData.size(),1));
-                                Spreadsheet.insertData(cargoRPData,tabName+createA1Range("C26",cargoRPData.size(),1));
-                                Spreadsheet.insertData(hangarRPData,tabName+createA1Range("C25",hangarRPData.size(),1));
-                            } catch (IOException | GeneralSecurityException e) {
-                                e.printStackTrace();
-                            }
-                            //System.out.println(climb);
-                        }
-                        if(redTeams.contains("frc"+tabNameAsInt)) {
-                            //System.out.println("red");
-                            int teamPosition = (blueTeams.indexOf("frc"+tabNameAsInt)+1);
-                            var taxi = ((LinkedTreeMap)blueScoreBreakdown).get("taxiRobot"+teamPosition);
-                            var climb = ((LinkedTreeMap)blueScoreBreakdown).get("endgameRobot"+teamPosition);
-                            var totalPoints = ((LinkedTreeMap)blueScoreBreakdown).get("totalPoints");
-                            var rp = ((LinkedTreeMap)blueScoreBreakdown).get("rp");
-                            var hangarBonusRP = ((LinkedTreeMap)blueScoreBreakdown).get("hangarBonusRankingPoint");
-                            var cargoBonusRP = ((LinkedTreeMap)blueScoreBreakdown).get("cargoBonusRankingPoint");
-                            alliancePoints.add(Collections.singletonList(totalPoints));
-                            climbData.add(Collections.singletonList(climb));
-                            taxiData.add(Collections.singletonList(taxi));
-                            rpData.add(Collections.singletonList(rp));
-                            cargoRPData.add(Collections.singletonList(cargoBonusRP));
-                            hangarRPData.add(Collections.singletonList(hangarBonusRP));
-
-                            try {
-                                Spreadsheet.insertData(taxiData, tabName+createA1Range("C8",taxiData.size(),1));
-                                Spreadsheet.insertData(alliancePoints,tabName+createA1Range("C9",alliancePoints.size(),1));
-                                Spreadsheet.insertData(climbData,tabName+createA1Range("C18",climbData.size(),1));
-                                Spreadsheet.insertData(rpData,tabName+createA1Range("C27",rpData.size(),1));
-                                Spreadsheet.insertData(cargoRPData,tabName+createA1Range("C26",cargoRPData.size(),1));
-                                Spreadsheet.insertData(hangarRPData,tabName+createA1Range("C25",hangarRPData.size(),1));
-                            } catch (IOException | GeneralSecurityException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    //Spreadsheet.insertData(alliancePoints, tabName+createA1Range("A1",12,1));
-                    //Repeat for other values
-
-                } catch (NumberFormatException e){
-                    System.out.println("Non team number sheet name");
-                } catch (InterruptedException /*| GeneralSecurityException*/ | IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        );
+        //System.out.println(service.getMatchesByTeamNumber(4159).get(0).getClass());
 
         try {
             matches = service.getMatches2();  //size 105
@@ -133,70 +45,6 @@ public class App {
 
 
             List<List<Object>> values = new ArrayList<>();
-
-            matches.forEach(match -> {
-                //One day we will make a gui that lets one choose fields to include and exlude from the json so no one
-                //has to type things like this ever
-                var matchData = new Vector<Object>();
-                matchData.add(match.get("comp_level"));
-                matchData.add(match.get("match_number"));
-                matchData.add(match.get("winning_alliance"));
-
-                LinkedTreeMap blueScoreBreakdown = ((LinkedTreeMap)((LinkedTreeMap)(match.get("score_breakdown"))).get("blue"));
-
-                matchData.add("Blue Teams " + ((LinkedTreeMap)((LinkedTreeMap)(match.get("alliances"))).get("blue")).get("team_keys").toString() );
-                matchData.add("Blue Alliance Score " + blueScoreBreakdown.get("totalPoints"));
-                matchData.add(
-                    "Blue Taxi Status " +
-                    Arrays.asList(
-                        blueScoreBreakdown.get("taxiRobot1"),
-                        blueScoreBreakdown.get("taxiRobot2"),
-                        blueScoreBreakdown.get("taxiRobot3")
-                    ).toString()
-                );
-                matchData.add(
-                    "Blue Climb Status " +
-                    Arrays.asList(
-                        blueScoreBreakdown.get("endgameRobot1"),
-                        blueScoreBreakdown.get("endgameRobot2"),
-                        blueScoreBreakdown.get("endgameRobot3")
-                    ).toString()
-                );
-                matchData.add("Blue Match RP " + blueScoreBreakdown.get("rp"));
-                matchData.add("Blue Hangar Bonus RP " + blueScoreBreakdown.get("hangarBonusRankingPoint"));
-                matchData.add("Blue Cargo Bonus RP " + blueScoreBreakdown.get("cargoBonusRankingPoint"));
-                matchData.add("Blue Foul Count " + blueScoreBreakdown.get("foulCount"));
-                matchData.add("Blue Tech Foul Count " + blueScoreBreakdown.get("techFoulCount"));
-
-                //Red
-                LinkedTreeMap redScoreBreakdown = ((LinkedTreeMap)((LinkedTreeMap)(match.get("score_breakdown"))).get("red"));
-
-                matchData.add("Red Teams " + ((LinkedTreeMap)((LinkedTreeMap)(match.get("alliances"))).get("red")).get("team_keys").toString() );
-                matchData.add("Red Alliance Score " + redScoreBreakdown.get("totalPoints"));
-                matchData.add(
-                    "Red Taxi Status " +
-                        Arrays.asList(
-                            redScoreBreakdown.get("taxiRobot1"),
-                            redScoreBreakdown.get("taxiRobot2"),
-                            redScoreBreakdown.get("taxiRobot3")
-                        ).toString()
-                );
-                matchData.add(
-                    "Red Climb Status " +
-                        Arrays.asList(
-                            redScoreBreakdown.get("endgameRobot1"),
-                            redScoreBreakdown.get("endgameRobot2"),
-                            redScoreBreakdown.get("endgameRobot3")
-                        ).toString()
-                );
-                matchData.add("Red Match RP " + redScoreBreakdown.get("rp"));
-                matchData.add("Red Hangar Bonus RP " + redScoreBreakdown.get("hangarBonusRankingPoint"));
-                matchData.add("Red Cargo Bonus RP " + redScoreBreakdown.get("cargoBonusRankingPoint"));
-                matchData.add("Red Foul Count " + redScoreBreakdown.get("foulCount"));
-                matchData.add("Red Tech Foul Count " + redScoreBreakdown.get("techFoulCount"));
-
-                values.add(matchData);
-            });
             //System.out.println(values);
 
             /*
@@ -211,8 +59,48 @@ public class App {
 
             //System.out.println(service.getTeams());
             //createSheets("Template" );
+            var vals = new ArrayList<List<Object>>();
+            service.getAllMatchJsonKeys(matches.get(1),true).forEach(
+                item -> {
+                    vals.add(Collections.singletonList(item));
+                }
+            );
+            Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
+            Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
+            Spreadsheet.resizeRange("Format Settings", 0, vals.size());
             System.out.println(Spreadsheet.getTabNames());
-            StatWheel.generateRobot(4159).saveTeam(4159);
+            //System.out.println(service.getAllMatchJsonKeys(matches.get(0), true));
+            //System.out.println(service.getMatchJsonValueByKey(matches.get(0), service.getAllMatchJsonKeys(matches.get(0), true)));
+            var dataAs2DList = Spreadsheet.getData("Format Settings"+createA1Range("A1",1,vals.size()));
+            var selectedEntries = new ArrayList<String>(Collections.emptyList());
+            System.out.println(dataAs2DList);
+            dataAs2DList.forEach(pair -> {
+                if(Boolean.parseBoolean(pair.get(1))){
+                    selectedEntries.add(pair.get(0));
+                }
+            });
+
+            System.out.println("IE "+selectedEntries.size()); //size 102
+            System.out.println(service.getMatchJsonValueByKey(matches.get(0),selectedEntries)); //size 96
+            System.out.println(Spreadsheet.getTabNames());
+            //For every team tab, write in included keys. For every match for a team write in data corresponding to included key
+            selectedEntries.add(0," "); //A1 must be empty
+            for(String tabName : Spreadsheet.getTabNames()){
+                var tabVals = new ArrayList<List<Object>>();
+                tabVals.add(Collections.singletonList(selectedEntries));
+                if(isInt(tabName)) {
+                    System.out.println("Pri");
+                    var teamMatches = service.getMatchesByTeamNumber(Integer.parseInt(tabName));
+                    teamMatches.forEach(match -> {
+                        var matchRowData = service.getMatchJsonValueByKey(match, selectedEntries);
+                        tabVals.add(Collections.singletonList(matchRowData));
+                    });
+                    //inserting into spreadsheet not working
+                    //Spreadsheet.insertData(tabVals, tabName+createA1Range("A1", selectedEntries.size(), tabVals.size()));
+                }
+                //parse matches list data as one array and write req all at  once
+            }
+            //StatWheel.generateRobot(4159).saveTeam(4159);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -256,6 +144,15 @@ public class App {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public static boolean isInt(String s){
+        try{
+            Integer.parseInt(s);
+        } catch(NumberFormatException e){
+            return false;
+        }
+        return true;
     }
 }
 

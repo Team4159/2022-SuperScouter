@@ -296,7 +296,6 @@ class BlueAllianceMatchServiceImpl(
         return valuesList
     }
 
-
     fun getCurrentHeaders(): String? = currentHeaders
     fun getLastHttpStatus():Int = lastHttpStatus
 
