@@ -17,7 +17,7 @@ public class App {
         //settingsConfig.createFormatSettingsSheet("Format Settings");
 
 
-        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022carv");
+        var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
         List<Map<String, Object>> matches;
         //System.out.println(service.getMatchesByTeamNumber(4159).get(0).getClass());
 
@@ -60,7 +60,7 @@ public class App {
             //System.out.println(service.getTeams());
             //createSheets("Template" );
             var vals = new ArrayList<List<Object>>();
-            service.getAllMatchJsonKeys(matches.get(1),true).forEach(
+            service.getAllMatchJsonKeys(matches.get(1),false).forEach(
                 item -> {
                     vals.add(Collections.singletonList(item));
                 }
@@ -83,23 +83,27 @@ public class App {
             System.out.println("IE "+selectedEntries.size()); //size 102
             System.out.println(service.getMatchJsonValueByKey(matches.get(0),selectedEntries)); //size 96
             System.out.println(Spreadsheet.getTabNames());
-            //For every team tab, write in included keys. For every match for a team write in data corresponding to included key
+            //For every team tab, write in included keys in top row. For every match for a team write in data corresponding to included key and form 2d list to insert
             selectedEntries.add(0," "); //A1 must be empty
+            var tabVals = new ArrayList<List<Object>>();
             for(String tabName : Spreadsheet.getTabNames()){
-                var tabVals = new ArrayList<List<Object>>();
-                tabVals.add(Collections.singletonList(selectedEntries));
+                tabVals.clear();
+                tabVals.add(new ArrayList<Object>(selectedEntries));
                 if(isInt(tabName)) {
-                    System.out.println("Pri");
                     var teamMatches = service.getMatchesByTeamNumber(Integer.parseInt(tabName));
-                    teamMatches.forEach(match -> {
-                        var matchRowData = service.getMatchJsonValueByKey(match, selectedEntries);
-                        tabVals.add(Collections.singletonList(matchRowData));
-                    });
+                    List<Object> matchRowData = Arrays.asList();
+                    for(Map<String, Object> match : teamMatches){
+                        matchRowData = service.getMatchJsonValueByKey(match, selectedEntries);
+                        matchRowData.add(0,"Match # ");
+                        tabVals.add(List.copyOf(matchRowData));
+                        matchRowData.clear();
+                    }
                     //inserting into spreadsheet not working
-                    //Spreadsheet.insertData(tabVals, tabName+createA1Range("A1", selectedEntries.size(), tabVals.size()));
+                    if(tabVals.size() > 1)
+                        Spreadsheet.insertData(tabVals, tabName+createA1Range("A1", 200, tabVals.size()));
                 }
-                //parse matches list data as one array and write req all at  once
             }
+            System.out.println(tabVals);
             //StatWheel.generateRobot(4159).saveTeam(4159);
         } catch (Exception e) {
             e.printStackTrace();
