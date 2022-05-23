@@ -14,13 +14,9 @@ import java.util.stream.Collectors;
 public class App {
     public static void main(String... args) throws InterruptedException, IOException, GeneralSecurityException {
         var settingsConfig = SheetFormatSettingsConfig.Companion.getInstance();
-        //settingsConfig.createFormatSettingsSheet("Format Settings");
-
 
         var service = new BlueAllianceMatchServiceImpl(PropReader.getProperty("AUTH_KEY"), "2022casj");
         List<Map<String, Object>> matches;
-        //System.out.println(service.getMatchesByTeamNumber(4159).get(0).getClass());
-
         try {
             matches = service.getMatches2();  //size 105
         } catch(Exception e){
@@ -29,6 +25,7 @@ public class App {
         }
         //System.out.println(service.getAllMatchJsonKeys(matches.get(1),false));
         //System.out.println(service.getMatchJsonValueByKey(matches.get(1),service.getAllMatchJsonKeys(matches.get(1),false)));
+
         try {
             // Spreadsheet.runTest();
 
@@ -43,10 +40,6 @@ public class App {
             );
             */
 
-
-            List<List<Object>> values = new ArrayList<>();
-            //System.out.println(values);
-
             /*
             System.out.println(createA1Range("A1", values.get(0).size(), values.size()));
             Spreadsheet.insertData(values, createA1Range("A1", values.get(0).size(), values.size()));
@@ -59,19 +52,33 @@ public class App {
 
             //System.out.println(service.getTeams());
             //createSheets("Template" );
+
+            //Write JSON keys to Format Settings Sheet
             var vals = new ArrayList<List<Object>>();
             service.getAllMatchJsonKeys(matches.get(1),false).forEach(
                 item -> {
                     vals.add(Collections.singletonList(item));
                 }
             );
-            Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
-            Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
-            Spreadsheet.resizeRange("Format Settings", 0, vals.size());
-            System.out.println(Spreadsheet.getTabNames());
+
+            //Write checkboxes to Format Settings Sheet
+            var dataAs2DList = Spreadsheet.getData("Format Settings"+createA1Range("A1",1,vals.size()));
+            var isCheckboxChanged = false;
+            for(ArrayList<String> pair : dataAs2DList)
+                if(Boolean.parseBoolean(pair.get(1))){
+                    isCheckboxChanged = true;
+                    break;
+                }
+            if(isCheckboxChanged){
+                Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
+                Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
+                Spreadsheet.resizeRange("Format Settings", 0, vals.size());
+            }
             //System.out.println(service.getAllMatchJsonKeys(matches.get(0), true));
             //System.out.println(service.getMatchJsonValueByKey(matches.get(0), service.getAllMatchJsonKeys(matches.get(0), true)));
-            var dataAs2DList = Spreadsheet.getData("Format Settings"+createA1Range("A1",1,vals.size()));
+
+            //Handle adding checked keys to selectedEntries list
+            dataAs2DList = Spreadsheet.getData("Format Settings"+createA1Range("A1",1,vals.size()));
             var selectedEntries = new ArrayList<String>(Collections.emptyList());
             System.out.println(dataAs2DList);
             dataAs2DList.forEach(pair -> {
@@ -82,8 +89,10 @@ public class App {
 
             System.out.println("IE "+selectedEntries.size()); //size 102
             System.out.println(service.getMatchJsonValueByKey(matches.get(0),selectedEntries)); //size 96
-            System.out.println(Spreadsheet.getTabNames());
-            //For every team tab, write in included keys in top row. For every match for a team write in data corresponding to included key and form 2d list to insert
+
+            //For every team tab, write in included keys in top row.
+            // For every match for a team write in data corresponding to
+            // included key and form 2d list to insert
             selectedEntries.add(0," "); //A1 must be empty
             var tabVals = new ArrayList<List<Object>>();
             for(String tabName : Spreadsheet.getTabNames()){
@@ -98,12 +107,10 @@ public class App {
                         tabVals.add(List.copyOf(matchRowData));
                         matchRowData.clear();
                     }
-                    //inserting into spreadsheet not working
                     if(tabVals.size() > 1)
                         Spreadsheet.insertData(tabVals, tabName+createA1Range("A1", 200, tabVals.size()));
                 }
             }
-            System.out.println(tabVals);
             //StatWheel.generateRobot(4159).saveTeam(4159);
         } catch (Exception e) {
             e.printStackTrace();
