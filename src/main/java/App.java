@@ -23,8 +23,6 @@ public class App {
             matches = Collections.emptyList();
             e.printStackTrace();
         }
-        //System.out.println(service.getAllMatchJsonKeys(matches.get(1),false));
-        //System.out.println(service.getMatchJsonValueByKey(matches.get(1),service.getAllMatchJsonKeys(matches.get(1),false)));
 
         try {
             // Spreadsheet.runTest();
@@ -53,9 +51,12 @@ public class App {
             //System.out.println(service.getTeams());
             //createSheets("Template" );
 
+            //System.out.println(service.getAllMatchJsonKeys(matches.get(1),false));
+            //System.out.println(service.getMatchJsonValueByKey(matches.get(1),service.getAllMatchJsonKeys(matches.get(1),false)));
+
             //Write JSON keys to Format Settings Sheet
             var vals = new ArrayList<List<Object>>();
-            service.getAllMatchJsonKeys(matches.get(1),false).forEach(
+            service.getAllMatchJsonKeys(service.getCrucialMatchesInfo(4159).get(1),false).forEach(
                 item -> {
                     vals.add(Collections.singletonList(item));
                 }
@@ -69,7 +70,7 @@ public class App {
                     isCheckboxChanged = true;
                     break;
                 }
-            if(isCheckboxChanged){
+            if(!isCheckboxChanged){
                 Spreadsheet.createCheckbox("Format Settings", 0,vals.size(),1,2);
                 Spreadsheet.insertData(vals, "Format Settings"+createA1Range("A1", 1, vals.size()));
                 Spreadsheet.resizeRange("Format Settings", 0, vals.size());
@@ -89,6 +90,7 @@ public class App {
 
             System.out.println("IE "+selectedEntries.size()); //size 102
             System.out.println(service.getMatchJsonValueByKey(matches.get(0),selectedEntries)); //size 96
+            //Clear sheet
 
             //For every team tab, write in included keys in top row.
             // For every match for a team write in data corresponding to
@@ -99,7 +101,7 @@ public class App {
                 tabVals.clear();
                 tabVals.add(new ArrayList<Object>(selectedEntries));
                 if(isInt(tabName)) {
-                    var teamMatches = service.getMatchesByTeamNumber(Integer.parseInt(tabName));
+                    var teamMatches = service.getCrucialMatchesInfo(Integer.parseInt(tabName));
                     List<Object> matchRowData = Arrays.asList();
                     for(Map<String, Object> match : teamMatches){
                         matchRowData = service.getMatchJsonValueByKey(match, selectedEntries);
@@ -107,7 +109,7 @@ public class App {
                         tabVals.add(List.copyOf(matchRowData));
                         matchRowData.clear();
                     }
-                    if(tabVals.size() > 1)
+                    if(tabVals.size() > 1) //Empty size are always size 1 due to adding a space char in selectedEntries
                         Spreadsheet.insertData(tabVals, tabName+createA1Range("A1", 200, tabVals.size()));
                 }
             }

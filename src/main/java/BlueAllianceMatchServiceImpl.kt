@@ -11,6 +11,7 @@ import java.net.http.HttpTimeoutException
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.stream.Collectors
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
@@ -294,6 +295,56 @@ class BlueAllianceMatchServiceImpl(
             }
         }
         return valuesList
+    }
+
+    //To avoid duplicates and displacement issues in Format Settings keys and the 1st row of keys on team tab sheets
+    //compLevel, winningAlliance, etc are common keys in match json objects for any game at the moment
+    fun getCrucialMatchesInfo(teamNumber:Int):List<Map<String,Any>>{ //address null key issue later
+        //Search for alliance color for each match. Get important outer keys,
+        // then get all keys in score breakdown;Note:Prior to api/v3, a lot of keys have null values
+        val matches = mutableListOf<Map<String,Any>>()
+        if (teamNumber <= 0) return matches
+        var allianceColor = ""
+        val request:HttpRequest = createRequest("$url/team/frc$teamNumber/event/$eventKey/matches")
+        val response: CompletableFuture<Any>? = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenApply(HttpResponse<String>::body)
+            .thenApply { it ->
+                val matchesJSON: JsonArray = JsonParser.parseString(it) as JsonArray
+                matchesJSON.map {
+                    //Important outer keys
+                    val match = TreeMap<String,Any>()
+                    val compLevel:String = it.asJsonObject.get("comp_level").asString
+                    val matchNumber:Int = it.asJsonObject.get("match_number").asInt
+                    val setNumber:Int = it.asJsonObject.get("set_number").asInt
+                    val winningAlliance: String = it.asJsonObject.get("winning_alliance").asString
+
+                    //Find alliance color
+                    val blueTeamKeys:JsonArray = it.asJsonObject.get("alliances").asJsonObject.get("blue").asJsonObject.get("team_keys").asJsonArray
+                    val redTeamKeys:JsonArray = it.asJsonObject.get("alliances").asJsonObject.get("red").asJsonObject.get("team_keys").asJsonArray
+                    if(TextConverter.stringToList(blueTeamKeys.toList().toString()).contains("\"frc$teamNumber\""))
+                        allianceColor = "blue"
+                    if(TextConverter.stringToList(redTeamKeys.toList().toString()).contains("\"frc$teamNumber\""))
+                        allianceColor = "red"
+
+                    //Score breakdown KV pairs
+                    val scoreBreakdown: JsonObject? = it.asJsonObject.get("score_breakdown").asJsonObject.get(allianceColor).asJsonObject
+                    val scoreBreakdownMap = gson.fromJson<HashMap<String,Any>>(scoreBreakdown, object :TypeToken<HashMap<String,Any>>(){}.type)
+                    val scoreBreakdownKeys = scoreBreakdownMap.keys.stream().collect(Collectors.toList())
+                    val scoreBreakdownVals = scoreBreakdownMap.values.stream().collect(Collectors.toList())
+                    match.apply {
+                        put("comp_level", compLevel)
+                        put("match_number", matchNumber)
+                        put("set_number", setNumber)
+                        put("winning_alliance", winningAlliance)
+                    }
+                    if(scoreBreakdown != null){
+                        for(i in 0 until scoreBreakdownKeys.size) match.put(scoreBreakdownKeys[i], scoreBreakdownVals[i])
+                        matches.add(match)
+                    }
+                }
+            }
+        response?.get() as List<Map<String,Any>>
+        return matches
     }
 
     fun getCurrentHeaders(): String? = currentHeaders

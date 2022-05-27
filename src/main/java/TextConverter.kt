@@ -13,5 +13,9 @@ class TextConverter {
             }
             return text
         }
+
+        fun stringToArray(str:String):Array<String> =str.replace("[","").replace("]","").split(", ").toTypedArray()
+        fun stringToList(str:String):List<String> = str.replace("[","").replace("]","").split(", ")
+
     }
 }
