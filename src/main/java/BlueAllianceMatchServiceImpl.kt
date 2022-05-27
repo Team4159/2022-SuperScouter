@@ -332,6 +332,7 @@ class BlueAllianceMatchServiceImpl(
                     val scoreBreakdownKeys = scoreBreakdownMap.keys.stream().collect(Collectors.toList())
                     val scoreBreakdownVals = scoreBreakdownMap.values.stream().collect(Collectors.toList())
                     match.apply {
+                        put("AllianceColor", allianceColor)
                         put("comp_level", compLevel)
                         put("match_number", matchNumber)
                         put("set_number", setNumber)

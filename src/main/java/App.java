@@ -109,8 +109,11 @@ public class App {
                         tabVals.add(List.copyOf(matchRowData));
                         matchRowData.clear();
                     }
-                    if(tabVals.size() > 1) //Empty size are always size 1 due to adding a space char in selectedEntries
-                        Spreadsheet.insertData(tabVals, tabName+createA1Range("A1", 200, tabVals.size()));
+                    if(tabVals.size() > 1) { //Empty size are always size 1 due to adding a space char in selectedEntries
+                        Spreadsheet.insertData(tabVals, tabName + createA1Range("A1", 200, tabVals.size()));
+                        Spreadsheet.resizeRange(tabName, 0, tabVals.get(0).size());
+                        Thread.sleep(500);
+                    }
                 }
             }
             //StatWheel.generateRobot(4159).saveTeam(4159);
